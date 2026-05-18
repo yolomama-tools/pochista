@@ -1,0 +1,3696 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>ぽちスタ｜ChatGPT画像を分割→透過→ZIP保存｜yoloママ</title>
+<meta name="description" content="ChatGPTで作った画像を、ぽちっと押すだけでスタンプ用に変身。1枚にまとまった画像を自動分割・白背景透過・スタンプ用サイズリサイズ・ZIP保存まで全部できる無料アプリ。yoloママ&お友達のために作りました🌷">
+<meta name="theme-color" content="#68A69B">
+
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="ぽちスタ｜ChatGPT画像をぽちっと変身🌷">
+<meta property="og:description" content="ChatGPTで作った画像を、自動分割→透過→リサイズ→ZIP保存まで一気に。無料・登録不要のスタンプ作成ツール✨">
+<meta property="og:url" content="https://yolomama-tools.github.io/pochista/">
+<meta property="og:image" content="https://yolomama-tools.github.io/pochista/pochista-ogp.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="ぽちスタ">
+<meta property="og:locale" content="ja_JP">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ぽちスタ｜yoloママ">
+<meta name="twitter:description" content="ChatGPT画像を、自動分割→透過→ZIP保存まで一気に🌷 無料・登録不要✨">
+<meta name="twitter:image" content="https://yolomama-tools.github.io/pochista/pochista-ogp.png">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="64x64" href="https://yolomama-tools.github.io/pochista/pochista-favicon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://yolomama-tools.github.io/pochista/pochista-icon-192.png">
+
+<!-- iOS PWA -->
+<link rel="apple-touch-icon" sizes="180x180" href="https://yolomama-tools.github.io/pochista/pochista-icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ぽちスタ">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Android PWA Manifest (data URI) -->
+<link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"ぽちスタ｜yoloママ","short_name":"ぽちスタ","start_url":"https://yolomama-tools.github.io/pochista/","display":"standalone","background_color":"%23F2EBF0","theme_color":"%23F2C9D4","icons":[{"src":"https://yolomama-tools.github.io/pochista/pochista-icon-192.png","sizes":"192x192","type":"image/png"},{"src":"https://yolomama-tools.github.io/pochista/pochista-icon-512.png","sizes":"512x512","type":"image/png"}]}'>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4FAFA;          /* 夏: ペールアクアウォッシュ（ほぼ白） */
+    --paper:#FFFFFF;       /* ピュアホワイトカード */
+    --beige:#FBF5DC;       /* ペールイエロー（hint背景） */
+    --beige-dp:#F2CD5C;    /* マスタード（hintボーダー） */
+    --pink:#D1E3E6;        /* ペールアクア（柔らかアクセント・パレット①） */
+    --pink-dp:#68A69B;     /* ディープティール（プライマリボタン・パレット③） */
+    --sage:#B4D9D5;        /* ペールミント（セカンダリボタン・パレット②） */
+    --terracotta:#F2CD5C;  /* マスタード（dropzone・パレット⑤） */
+    --ink:#2D4A47;         /* ディープティールチャコール（テキスト・線） */
+    --ink-soft:#6B8B86;    /* くすみティールグレー（補助テキスト） */
+    --shadow: 3px 3px 0 var(--ink);
+    --shadow-sm: 2px 2px 0 var(--ink);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Zen Maru Gothic',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  body{
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(209,227,230,0.5) 0, transparent 50%),
+      radial-gradient(circle at 85% 85%, rgba(242,230,167,0.4) 0, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(180,217,213,0.25) 0, transparent 65%);
+    padding:20px 14px 80px;
+  }
+  .container{max-width:920px;margin:0 auto}
+  header{text-align:center;margin-bottom:20px;padding:20px 16px 8px}
+  .badge-top{
+    display:inline-block;
+    background:var(--sage);
+    border:2px solid var(--ink);
+    border-radius:999px;
+    padding:4px 14px;
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:12px;
+    box-shadow:var(--shadow-sm);
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(28px,6.5vw,42px);
+    letter-spacing:-0.02em;
+    line-height:1.15;
+    margin-bottom:10px;
+  }
+  h1 .accent{color:var(--pink-dp);font-style:italic}
+  .tagline{font-size:13px;color:var(--ink-soft);line-height:1.7}
+
+  /* ===== 説明ボタン群 ===== */
+  .help-buttons{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .help-btn{
+    background:var(--paper);
+    border:2px solid var(--ink);
+    border-radius:14px;
+    padding:11px 10px;
+    font-family:inherit;
+    font-weight:700;
+    font-size:12px;
+    cursor:pointer;
+    color:var(--ink);
+    box-shadow:var(--shadow-sm);
+    transition:all 0.15s;
+    line-height:1.4;
+  }
+  .help-btn:hover{transform:translate(-1px,-1px);box-shadow:var(--shadow)}
+  .help-btn:active{transform:translate(1px,1px);box-shadow:none}
+  .help-btn .ic{font-size:16px;margin-right:4px}
+
+  /* モーダル */
+  .modal{
+    position:fixed;
+    inset:0;
+    background:rgba(92,74,63,0.5);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:2000;
+    padding:0;
+    pointer-events:auto;
+  }
+  .modal:not(.show){pointer-events:none !important;visibility:hidden}
+  .modal.show{display:flex}
+  @media(min-width:600px){
+    .modal{align-items:center;padding:20px}
+  }
+  .modal-content{
+    background:var(--paper);
+    border:2px solid var(--ink);
+    border-radius:20px 20px 0 0;
+    max-width:560px;
+    width:100%;
+    max-height:85vh;
+    overflow-y:auto;
+    padding:22px 18px;
+    box-shadow:var(--shadow);
+  }
+  @media(min-width:600px){
+    .modal-content{border-radius:20px}
+  }
+  .modal-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+    padding-bottom:10px;
+    border-bottom:1.5px dashed var(--beige-dp);
+  }
+  .modal-head h3{
+    font-size:16px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .modal-close{
+    background:var(--bg);
+    border:1.5px solid var(--ink);
+    border-radius:50%;
+    width:30px;height:30px;
+    font-size:14px;
+    cursor:pointer;
+    font-family:inherit;
+    color:var(--ink);
+  }
+  .modal-body{
+    font-size:13px;
+    line-height:1.8;
+  }
+  .modal-body h4{
+    font-size:13px;
+    font-weight:700;
+    margin-top:14px;
+    margin-bottom:6px;
+    color:var(--pink-dp);
+  }
+  .modal-body h4:first-child{margin-top:0}
+  .modal-body ol, .modal-body ul{
+    padding-left:20px;
+    margin-bottom:8px;
+  }
+  .modal-body li{margin-bottom:4px}
+  .modal-body .qa{
+    background:var(--bg);
+    border:1px solid var(--beige-dp);
+    border-radius:10px;
+    padding:10px 12px;
+    margin-bottom:8px;
+  }
+  .modal-body .qa .q{
+    font-weight:700;
+    margin-bottom:4px;
+    color:var(--terracotta);
+  }
+  .modal-body .qa .a{font-size:12.5px}
+
+  .card{
+    background:var(--paper);
+    border:2px solid var(--ink);
+    border-radius:18px;
+    padding:22px 18px;
+    margin-bottom:18px;
+    box-shadow:var(--shadow);
+  }
+  .card h2{
+    font-size:16px;
+    font-weight:700;
+    margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .step-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:30px;height:30px;
+    background:var(--terracotta);
+    color:var(--paper);
+    border-radius:50%;
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:15px;
+    border:2px solid var(--ink);
+    flex-shrink:0;
+  }
+
+  .prompt-intro{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:14px;
+    line-height:1.7;
+  }
+  .quantity-note{
+    background:var(--sage);
+    border:1.5px solid var(--ink);
+    border-radius:10px;
+    padding:9px 12px;
+    font-size:12px;
+    line-height:1.6;
+    margin-bottom:14px;
+    color:var(--ink);
+  }
+  .quantity-note strong{display:block;margin-bottom:2px;font-size:12.5px}
+
+  .prompt-item{
+    background:var(--bg);
+    border:1.5px solid var(--beige-dp);
+    border-radius:12px;
+    margin-bottom:10px;
+    overflow:hidden;
+  }
+  .prompt-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    padding:12px 14px;
+    cursor:pointer;
+    user-select:none;
+    transition:background 0.2s;
+  }
+  .prompt-head:hover{background:var(--beige)}
+  .prompt-head-left{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex:1;
+    min-width:0;
+  }
+  .prompt-title{
+    font-weight:700;
+    font-size:13px;
+    line-height:1.4;
+  }
+  .prompt-arrow{
+    font-size:14px;
+    color:var(--ink-soft);
+    transition:transform 0.2s;
+    flex-shrink:0;
+  }
+  .prompt-item.open .prompt-arrow{transform:rotate(90deg)}
+  .prompt-body{
+    display:none;
+    padding:0 14px 14px;
+  }
+  .prompt-item.open .prompt-body{display:block}
+  .copy-btn{
+    background:var(--sage);
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    padding:6px 12px;
+    font-size:11px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+    color:var(--ink);
+    transition:all 0.15s;
+    flex-shrink:0;
+    box-shadow:1px 1px 0 var(--ink);
+    margin-bottom:8px;
+  }
+  .copy-btn:hover{transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--ink)}
+  .copy-btn:active{transform:translate(1px,1px);box-shadow:none}
+  .copy-btn.copied{background:var(--terracotta);color:var(--paper)}
+  .prompt-text{
+    font-size:12px;
+    line-height:1.7;
+    background:var(--paper);
+    border-radius:8px;
+    padding:10px 12px;
+    border:1px dashed var(--beige-dp);
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+
+  .settings{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:600px){.settings{grid-template-columns:1fr 1fr}}
+  .setting-block label{display:block;font-weight:500;font-size:13px;margin-bottom:8px;color:var(--ink-soft)}
+  .toggle-group{
+    display:flex;
+    background:var(--bg);
+    border:2px solid var(--ink);
+    border-radius:12px;
+    padding:3px;
+    gap:3px;
+  }
+  .toggle-group button{
+    flex:1;
+    padding:9px 4px;
+    border:none;
+    background:transparent;
+    border-radius:9px;
+    font-family:inherit;
+    font-weight:500;
+    font-size:12px;
+    cursor:pointer;
+    color:var(--ink);
+    transition:all 0.2s;
+  }
+  .toggle-group button.active{background:var(--pink-dp);color:var(--paper);font-weight:700}
+  .toggle-group button small{opacity:0.85;font-size:10px;display:block;margin-top:1px}
+
+  .split-select{
+    width:100%;
+    padding:11px 14px;
+    border:2px solid var(--ink);
+    border-radius:12px;
+    background:var(--bg);
+    font-family:inherit;
+    font-weight:700;
+    font-size:13px;
+    color:var(--ink);
+    cursor:pointer;
+    appearance:none;
+    -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%232D4A47' d='M6 8L2 4h8z'/></svg>");
+    background-repeat:no-repeat;
+    background-position:right 12px center;
+    background-size:12px;
+    padding-right:32px;
+  }
+  .split-select:focus{outline:none;border-color:var(--pink-dp)}
+
+  .mode-info{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:6px;
+    line-height:1.6;
+  }
+
+  .dropzone{
+    border:3px dashed var(--terracotta);
+    border-radius:16px;
+    padding:36px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:all 0.25s;
+    background:linear-gradient(135deg, var(--paper) 0%, var(--beige) 100%);
+  }
+  .dropzone:hover,.dropzone.drag{
+    background:linear-gradient(135deg, var(--beige) 0%, var(--pink) 100%);
+    transform:translateY(-2px);
+  }
+  .dropzone-icon{font-size:40px;margin-bottom:10px;display:block}
+  .dropzone strong{display:block;font-size:15px;margin-bottom:4px}
+  .dropzone span{display:block;font-size:12px;color:var(--ink-soft)}
+  #fileInput{display:none}
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:14px 22px;
+    border:2px solid var(--ink);
+    border-radius:12px;
+    font-family:inherit;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    background:var(--paper);
+    color:var(--ink);
+    box-shadow:var(--shadow-sm);
+    transition:all 0.15s;
+    width:100%;
+  }
+  .btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+  .btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:none}
+  .btn:disabled{opacity:0.5;cursor:not-allowed}
+  .btn-primary{background:var(--pink-dp);color:var(--paper)}
+  .btn-secondary{background:var(--sage)}
+
+  .btn-row{display:grid;grid-template-columns:1fr;gap:10px;margin-top:16px}
+  @media(min-width:600px){.btn-row{grid-template-columns:1fr 1fr}}
+
+  .progress-wrap{
+    margin-top:14px;
+    padding:14px;
+    background:var(--bg);
+    border:2px solid var(--ink);
+    border-radius:12px;
+    display:none;
+  }
+  .progress-wrap.show{display:block}
+  .progress-text{font-size:13px;margin-bottom:8px;font-weight:500}
+  .progress-bar{height:10px;background:var(--paper);border:2px solid var(--ink);border-radius:999px;overflow:hidden}
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--pink-dp), var(--terracotta));
+    width:0%;
+    transition:width 0.3s;
+  }
+
+  .preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-top:14px}
+  .preview-item{
+    aspect-ratio:1;
+    border:2px solid var(--ink);
+    border-radius:12px;
+    overflow:hidden;
+    background:
+      linear-gradient(45deg, var(--beige) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--beige) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--beige) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--beige) 75%);
+    background-size:14px 14px;
+    background-position:0 0, 0 7px, 7px -7px, 7px 0;
+    background-color:var(--paper);
+    position:relative;
+    box-shadow:var(--shadow-sm);
+  }
+  .preview-item img{width:100%;height:100%;object-fit:contain}
+  .preview-item .num{
+    position:absolute;
+    top:4px;left:4px;
+    background:var(--ink);
+    color:var(--paper);
+    font-size:10px;
+    padding:2px 6px;
+    border-radius:6px;
+    font-weight:700;
+  }
+  .preview-item .download-btn{
+    position:absolute;
+    bottom:4px;right:4px;
+    background:var(--pink-dp);
+    color:var(--paper);
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    padding:3px 7px;
+    font-size:10px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .preview-item .download-btn:hover{background:var(--terracotta)}
+  .preview-item .download-btn.featured{
+    font-size:13px;
+    padding:6px 12px;
+    border-radius:8px;
+    background:var(--terracotta);
+    box-shadow:1.5px 1.5px 0 var(--ink);
+    animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{transform:scale(1);box-shadow:1.5px 1.5px 0 var(--ink)}
+    50%{transform:scale(1.08);box-shadow:2.5px 2.5px 0 var(--ink)}
+  }
+  .featured-banner{
+    background:linear-gradient(135deg, var(--pink) 0%, var(--beige) 100%);
+    border:2px solid var(--ink);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:14px;
+    font-size:13px;
+    line-height:1.7;
+    box-shadow:var(--shadow-sm);
+  }
+  .featured-banner strong{display:block;margin-bottom:3px;font-size:13.5px}
+
+  /* ステップインジケーター（固定） */
+  .step-indicator{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border-bottom:2px solid var(--ink);
+    padding:8px 14px;
+    margin:-20px -14px 16px;
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .step-pill{
+    flex:0 0 auto;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:5px 10px;
+    border:1.5px solid var(--ink);
+    border-radius:999px;
+    font-size:11px;
+    font-weight:700;
+    background:var(--paper);
+    color:var(--ink-soft);
+    white-space:nowrap;
+    cursor:pointer;
+    transition:all 0.15s;
+  }
+  .step-pill .num{
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:var(--bg);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:10px;
+  }
+  .step-pill.active{background:var(--pink-dp);color:var(--paper);border-color:var(--ink)}
+  .step-pill.active .num{background:var(--paper);color:var(--pink-dp)}
+  .step-pill.done{background:var(--sage);color:var(--ink)}
+  .step-pill.done .num{background:var(--paper);color:var(--ink)}
+
+  /* セット名入力 */
+  .set-name-block{
+    background:linear-gradient(135deg, var(--bg) 0%, var(--beige) 100%);
+    border:2px solid var(--ink);
+    border-radius:14px;
+    padding:14px 16px;
+    margin-bottom:14px;
+    box-shadow:var(--shadow-sm);
+  }
+  .set-name-block label{
+    display:block;
+    font-weight:700;
+    font-size:13px;
+    margin-bottom:8px;
+    color:var(--ink);
+  }
+  .set-name-input{
+    width:100%;
+    padding:10px 12px;
+    border:2px solid var(--ink);
+    border-radius:10px;
+    font-family:inherit;
+    font-size:14px;
+    color:var(--ink);
+    background:var(--paper);
+  }
+  .set-name-input:focus{outline:none;border-color:var(--pink-dp)}
+
+  /* チェックボックス選別 */
+  .preview-item .check-toggle{
+    position:absolute;
+    top:4px; right:4px;
+    width:24px; height:24px;
+    border-radius:50%;
+    background:var(--paper);
+    border:2px solid var(--ink);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    font-weight:900;
+    color:transparent;
+    transition:all 0.15s;
+    box-shadow:1px 1px 0 var(--ink);
+  }
+  .preview-item .check-toggle.checked{background:var(--pink-dp);color:var(--paper)}
+  .preview-item.unchecked img{opacity:0.3;filter:grayscale(0.8)}
+  .preview-item.unchecked{opacity:0.6}
+
+  .selection-bar{
+    background:var(--bg);
+    border:2px solid var(--ink);
+    border-radius:12px;
+    padding:10px 14px;
+    margin:14px 0 6px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    font-size:12.5px;
+  }
+  .selection-bar button{
+    background:var(--paper);
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    padding:5px 10px;
+    font-family:inherit;
+    font-size:11px;
+    font-weight:700;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .selection-bar button:hover{background:var(--pink)}
+
+  /* LINE CMボタン */
+  .btn-line{
+    background:#06C755;
+    color:#fff;
+    border-color:var(--ink);
+  }
+  .btn-line:hover:not(:disabled){background:#04a544}
+
+  /* プロンプトタブ */
+  .prompt-tabs{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:8px;
+    margin-bottom:8px;
+    scrollbar-width:thin;
+    align-items:center;
+  }
+  .prompt-tabs-meta{
+    background:var(--bg);
+    border:1.5px dashed var(--beige-dp);
+    border-radius:10px;
+    padding:6px 10px;
+    margin-bottom:14px;
+  }
+  .prompt-tabs-meta .tabs-label{
+    flex:0 0 auto;
+    font-size:11px;
+    font-weight:700;
+    color:var(--ink-soft);
+    margin-right:4px;
+    white-space:nowrap;
+  }
+  .prompt-tab{
+    flex:0 0 auto;
+    padding:8px 14px;
+    border:1.5px solid var(--ink);
+    border-radius:999px;
+    background:var(--paper);
+    font-family:inherit;
+    font-size:12px;
+    font-weight:700;
+    color:var(--ink);
+    cursor:pointer;
+    white-space:nowrap;
+    transition:all 0.15s;
+    box-shadow:1px 1px 0 var(--ink);
+  }
+  .prompt-tab:hover{transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--ink)}
+  .prompt-tab.active{background:var(--pink-dp);color:var(--paper)}
+  /* タブモード時はaccordionヘッダーを隠す */
+  .prompt-section.tab-mode .prompt-item{display:none}
+  .prompt-section.tab-mode .prompt-item.active{display:block}
+  .prompt-section.tab-mode .prompt-item .prompt-head{display:none}
+  .prompt-section.tab-mode .prompt-item .prompt-body{display:block;padding:12px}
+
+  /* URLコピーボタン */
+  .url-copy-block{
+    background:var(--bg);
+    border:1.5px solid var(--beige-dp);
+    border-radius:10px;
+    padding:10px 12px;
+    margin-top:10px;
+    font-size:11.5px;
+    line-height:1.6;
+  }
+  .url-copy-row{
+    display:flex;
+    gap:6px;
+    align-items:center;
+    margin-top:6px;
+  }
+  .url-copy-row input{
+    flex:1;
+    padding:6px 8px;
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    font-size:11px;
+    font-family:inherit;
+    color:var(--ink);
+    background:var(--paper);
+    overflow:hidden;
+  }
+  .url-copy-btn{
+    padding:6px 10px;
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    font-size:11px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+    background:var(--sage);
+    color:var(--ink);
+    flex-shrink:0;
+  }
+  .url-copy-btn:hover{background:var(--pink)}
+  .url-copy-btn.copied{background:var(--pink-dp);color:var(--paper)}
+
+  /* キャラピッカー */
+  .char-picker{
+    background:var(--paper);
+    border:2px solid var(--terracotta);
+    border-radius:10px;
+    padding:12px;
+    margin-bottom:10px;
+  }
+  .char-picker > strong{
+    display:block;
+    font-size:12.5px;
+    margin-bottom:8px;
+    color:var(--terracotta);
+  }
+  .char-picker-options{
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px;
+    margin-bottom:8px;
+  }
+  .char-quick{
+    padding:6px 10px;
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    background:var(--bg);
+    font-family:inherit;
+    font-size:11.5px;
+    font-weight:700;
+    cursor:pointer;
+    color:var(--ink);
+    box-shadow:1px 1px 0 var(--ink);
+    transition:all 0.15s;
+  }
+  .char-quick:hover{transform:translate(-1px,-1px);background:var(--pink)}
+  .char-quick.active{background:var(--terracotta);color:var(--paper)}
+  .char-input{
+    width:100%;
+    padding:8px 10px;
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    font-family:inherit;
+    font-size:13px;
+    color:var(--ink);
+    background:var(--paper);
+  }
+  .char-input:focus{outline:none;border-color:var(--terracotta)}
+  .char-helper{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:5px;
+    line-height:1.5;
+  }
+
+  .hint{
+    background:var(--beige);
+    border:2px solid var(--ink);
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:12px;
+    line-height:1.7;
+    margin-top:14px;
+  }
+  .hint strong{display:block;margin-bottom:4px;font-size:13px}
+
+  .alert{
+    background:var(--pink);
+    border:2px solid var(--ink);
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:12px;
+    line-height:1.7;
+    margin-top:14px;
+    display:none;
+  }
+  .alert.show{display:block}
+  .alert strong{display:block;margin-bottom:4px;font-size:13px}
+
+  footer{text-align:center;margin-top:30px;padding:16px;font-size:11px;color:var(--ink-soft)}
+  footer .heart{color:var(--pink-dp)}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spinner{
+    display:inline-block;
+    width:14px;height:14px;
+    border:2px solid currentColor;
+    border-top-color:transparent;
+    border-radius:50%;
+    animation:spin 0.8s linear infinite;
+  }
+  .hidden{display:none !important}
+
+  .loading-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(247,241,232,0.95);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+    flex-direction:column;
+    gap:14px;
+    padding:20px;
+    text-align:center;
+  }
+  .loading-overlay.show{display:flex}
+  .loading-overlay .big-spinner{
+    width:48px;height:48px;
+    border:4px solid var(--terracotta);
+    border-top-color:transparent;
+    border-radius:50%;
+    animation:spin 0.8s linear infinite;
+  }
+  .loading-overlay p{font-size:14px;font-weight:500}
+
+  /* ===== ① プリセットセット切替 ===== */
+  .preset-buttons{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .preset-btn{
+    background:linear-gradient(135deg, var(--sage) 0%, var(--pink) 100%);
+    border:2px solid var(--ink);
+    border-radius:14px;
+    padding:12px 10px;
+    font-family:inherit;
+    font-weight:700;
+    font-size:12px;
+    cursor:pointer;
+    color:var(--ink);
+    box-shadow:var(--shadow-sm);
+    transition:all 0.15s;
+    line-height:1.5;
+    text-align:center;
+  }
+  .preset-btn:hover{transform:translate(-1px,-1px);box-shadow:var(--shadow)}
+  .preset-btn:active{transform:translate(1px,1px);box-shadow:none}
+  .preset-btn .preset-icon{font-size:20px;display:block;margin-bottom:4px}
+  .preset-btn .preset-label{font-size:11px;font-weight:500;color:var(--ink-soft);display:block;margin-top:2px}
+  .preset-guide{
+    background:linear-gradient(135deg, var(--pink) 0%, var(--beige) 100%);
+    border:2px solid var(--ink);
+    border-radius:14px;
+    padding:14px 16px;
+    margin-bottom:14px;
+    box-shadow:var(--shadow-sm);
+    display:none;
+  }
+  .preset-guide.show{display:block}
+  .preset-guide-title{font-weight:700;font-size:13.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .preset-steps{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .preset-step{
+    flex:1;
+    min-width:80px;
+    padding:8px 6px;
+    border:2px solid var(--ink);
+    border-radius:10px;
+    background:var(--paper);
+    text-align:center;
+    font-size:11px;
+    font-weight:500;
+    line-height:1.4;
+    opacity:0.5;
+    transition:all 0.2s;
+  }
+  .preset-step.active{
+    opacity:1;
+    background:var(--pink-dp);
+    color:var(--paper);
+    font-weight:700;
+    box-shadow:var(--shadow-sm);
+  }
+  .preset-step.done{opacity:1;background:var(--sage);text-decoration:line-through}
+  .preset-step-num{font-size:10px;display:block;margin-bottom:2px;font-weight:700}
+  .preset-guide-msg{font-size:12.5px;line-height:1.7;margin-bottom:8px}
+  .preset-guide-btns{display:flex;gap:8px;flex-wrap:wrap}
+  .preset-guide-btns button{
+    padding:8px 14px;
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    font-family:inherit;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:1px 1px 0 var(--ink);
+  }
+  .preset-next-btn{background:var(--pink-dp);color:var(--paper)}
+  .preset-next-btn:hover{background:var(--terracotta)}
+  .preset-close-btn{background:var(--paper);color:var(--ink)}
+
+  /* ===== ② 一括リネーム ===== */
+  .rename-block{
+    background:var(--bg);
+    border:2px solid var(--ink);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:10px;
+  }
+  .rename-block label{display:block;font-weight:700;font-size:12.5px;margin-bottom:8px;color:var(--ink)}
+  .rename-options{display:flex;flex-direction:column;gap:6px}
+  .rename-option{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 10px;
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    background:var(--paper);
+    cursor:pointer;
+    font-size:12px;
+    transition:all 0.15s;
+  }
+  .rename-option:hover{background:var(--beige)}
+  .rename-option.active{background:var(--pink-dp);color:var(--paper);font-weight:700}
+  .rename-option input[type="radio"]{display:none}
+  .rename-prefix-input{
+    margin-top:6px;
+    padding:8px 10px;
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    font-family:inherit;
+    font-size:13px;
+    width:100%;
+    display:none;
+  }
+  .rename-prefix-input.show{display:block}
+  .rename-prefix-input:focus{outline:none;border-color:var(--pink-dp)}
+
+  /* ===== ③ 透過チェッカー ===== */
+  .checker-toggle{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 14px;
+    border:2px solid var(--ink);
+    border-radius:10px;
+    background:var(--paper);
+    font-family:inherit;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    color:var(--ink);
+    box-shadow:var(--shadow-sm);
+    transition:all 0.15s;
+    margin-bottom:10px;
+  }
+  .checker-toggle:hover{transform:translate(-1px,-1px);box-shadow:var(--shadow)}
+  .checker-toggle.active{background:var(--pink-dp);color:var(--paper)}
+  .preview-item.checker-off{
+    background:var(--paper);
+  }
+
+  /* ===== ④ 微調整パネル ===== */
+  .adjust-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(45,74,71,0.6);
+    z-index:1500;
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+  }
+  .adjust-overlay.show{display:flex}
+  @media(min-width:600px){.adjust-overlay{align-items:center}}
+  .adjust-panel{
+    background:var(--paper);
+    border:2px solid var(--ink);
+    border-radius:20px 20px 0 0;
+    max-width:500px;
+    width:100%;
+    max-height:85vh;
+    overflow-y:auto;
+    padding:18px 16px;
+    box-shadow:var(--shadow);
+  }
+  @media(min-width:600px){.adjust-panel{border-radius:20px}}
+  .adjust-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+    padding-bottom:10px;
+    border-bottom:1.5px dashed var(--beige-dp);
+  }
+  .adjust-header h3{font-size:15px;font-weight:700}
+  .adjust-preview{
+    text-align:center;
+    margin-bottom:14px;
+    background:
+      linear-gradient(45deg, #ddd 25%, transparent 25%),
+      linear-gradient(-45deg, #ddd 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #ddd 75%),
+      linear-gradient(-45deg, transparent 75%, #ddd 75%);
+    background-size:16px 16px;
+    background-position:0 0, 0 8px, 8px -8px, -8px 0px;
+    border:2px solid var(--ink);
+    border-radius:12px;
+    padding:10px;
+    overflow:hidden;
+  }
+  .adjust-preview img{max-width:100%;max-height:200px;object-fit:contain}
+  .adjust-preview canvas{cursor:grab;touch-action:none}
+  .adjust-preview canvas.dragging{cursor:grabbing}
+  .adjust-drag-hint{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:4px;opacity:0.7}
+  .adjust-section{
+    border:1.5px solid var(--beige-dp);
+    border-radius:10px;
+    margin-bottom:8px;
+    overflow:hidden;
+  }
+  .adjust-section-head{
+    padding:10px 12px;
+    font-size:12.5px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--bg);
+    user-select:none;
+  }
+  .adjust-section-head:hover{background:var(--beige)}
+  .adjust-section-body{display:none;padding:12px}
+  .adjust-section.open .adjust-section-body{display:block}
+  .adjust-section .adjust-arrow{transition:transform 0.2s;font-size:12px;color:var(--ink-soft)}
+  .adjust-section.open .adjust-arrow{transform:rotate(90deg)}
+  .adjust-arrows{
+    display:grid;
+    grid-template-areas:". up ." "left center right" ". down .";
+    grid-template-columns:52px 52px 52px;
+    grid-template-rows:52px 52px 52px;
+    gap:6px;
+    justify-content:center;
+    margin:8px 0;
+  }
+  .adjust-arrows button{
+    width:52px;height:52px;
+    border:1.5px solid var(--ink);
+    border-radius:12px;
+    background:var(--paper);
+    font-size:20px;
+    cursor:pointer;
+    font-family:inherit;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:1px 1px 0 var(--ink);
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+  }
+  .adjust-arrows button:hover{background:var(--beige)}
+  .adjust-arrows button:active{transform:translate(1px,1px);box-shadow:none;background:var(--sage)}
+  .adjust-arrows .arr-up{grid-area:up}
+  .adjust-arrows .arr-down{grid-area:down}
+  .adjust-arrows .arr-left{grid-area:left}
+  .adjust-arrows .arr-right{grid-area:right}
+  .adjust-arrows .arr-center{grid-area:center;background:var(--sage);font-size:11px;font-weight:700}
+  .adjust-slider-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:8px 0;
+  }
+  .adjust-slider-row label{font-size:11.5px;font-weight:700;min-width:36px;color:var(--ink-soft)}
+  .adjust-slider-row input[type="range"]{flex:1;accent-color:var(--pink-dp)}
+  .adjust-slider-row .adjust-val{font-size:11px;min-width:30px;text-align:right;font-weight:700}
+  .adjust-reset{
+    padding:6px 12px;
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    background:var(--bg);
+    font-family:inherit;
+    font-size:11px;
+    font-weight:700;
+    cursor:pointer;
+    color:var(--ink);
+    margin-top:4px;
+  }
+  .adjust-reset:hover{background:var(--beige)}
+  .adjust-footer{
+    display:flex;
+    gap:8px;
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1.5px dashed var(--beige-dp);
+  }
+  .adjust-footer button{
+    flex:1;
+    padding:12px;
+    border:2px solid var(--ink);
+    border-radius:10px;
+    font-family:inherit;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:var(--shadow-sm);
+  }
+  .adjust-apply{background:var(--pink-dp);color:var(--paper)}
+  .adjust-apply:hover{background:var(--terracotta)}
+  .adjust-cancel{background:var(--paper);color:var(--ink)}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="big-spinner"></div>
+  <p id="loadingText">AIモデルを読み込み中...<br><span style="font-size:12px;color:var(--ink-soft)">初回のみ少し時間がかかります🍀</span></p>
+</div>
+
+<!-- モーダル -->
+<div class="modal" id="modalUseFlow">
+  <div class="modal-content">
+    <div class="modal-head">
+      <h3>📖 使い方の流れ</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>① ChatGPTで画像を作る</h4>
+      <ol>
+        <li>下のプロンプト集から好きなものを選んで「コピー」</li>
+        <li>ChatGPTを開いて貼り付ける</li>
+        <li>画像ができたら、長押しまたは右クリックで保存</li>
+      </ol>
+      <h4>② このツールで仕上げる</h4>
+      <ol>
+        <li>「画像を選ぶ」から画像をアップ（複数まとめてOK）</li>
+        <li>「かんたん仕上げスタート」をタップ</li>
+        <li>背景透過＋スタンプサイズに自動加工</li>
+        <li>仕上がった画像をタップすると<strong>微調整パネル</strong>が開きます🌷 位置ずらし・サイズ変更・切れた部分の復元ができます</li>
+      </ol>
+      <h4>③ 保存する</h4>
+      <ol>
+        <li>「ぜんぶまとめて保存」でZIPダウンロード</li>
+        <li>ZIPを開けば、1枚ずつの画像になっています🌷</li>
+      </ol>
+      <h4>④ LINEに登録する</h4>
+      <p style="margin-bottom:8px">作った画像をLINEのスタンプとして登録できます🌷<br>
+      くわしくは右上の<strong>「LINEに登録する」</strong>ボタンを見てくださいね。</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modalChatGPT">
+  <div class="modal-content">
+    <div class="modal-head">
+      <h3>🤖 はじめてのChatGPT</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>ChatGPT(チャッピー)って？</h4>
+      <p style="margin-bottom:8px">話しかけると答えてくれたり、絵を描いてくれるAIアプリです。無料で使えますよ🌷</p>
+      <h4>使い始めかた</h4>
+      <ol>
+        <li>App Store/Google Playで「ChatGPT」をダウンロード</li>
+        <li>アプリを開いてアカウントを作る（メールアドレスでOK）</li>
+        <li>下のメッセージ欄にプロンプトを貼り付けて送信</li>
+        <li>少し待つと画像ができあがります✨</li>
+      </ol>
+      <h4>画像の保存方法</h4>
+      <ul>
+        <li><strong>スマホ</strong>：画像を長押し → 「画像を保存」</li>
+        <li><strong>PC</strong>：画像を右クリック → 「名前を付けて画像を保存」</li>
+      </ul>
+      <h4>うまく作れないとき</h4>
+      <p style="margin-bottom:12px">「もっとシンプルに」「もっとかわいく」「線をやさしく」など追加でお願いしてみてください。何度でもやり直せます🍀</p>
+
+      <h4>💡 無料プランで画像が作れないとき</h4>
+      <p style="margin-bottom:8px">ChatGPTの無料プランは<strong>画像生成に回数制限</strong>があります。上限に達すると翌日まで待つか、以下のAIでも同じように作れます🌷</p>
+      <div style="background:var(--bg);border:1.5px solid var(--beige-dp);border-radius:10px;padding:12px;font-size:12.5px;line-height:1.8">
+        <strong>🌀 Gemini（ジェミニ）</strong>— Google製の無料AI<br>
+        <a href="https://gemini.google.com/" target="_blank" rel="noopener" style="color:var(--pink-dp);font-weight:600">gemini.google.com</a> を開いて、同じプロンプトを貼り付ければOK。Googleアカウントがあればすぐ使えます✨<br><br>
+        <strong>🔷 Copilot（コパイロット）</strong>— Microsoft製の無料AI<br>
+        <a href="https://copilot.microsoft.com/" target="_blank" rel="noopener" style="color:var(--pink-dp);font-weight:600">copilot.microsoft.com</a> を開いて同じように貼り付けるだけ。こちらもアカウント登録だけで無料です🍀
+      </div>
+      <p style="margin-top:8px;font-size:12px;color:var(--ink-soft)">※ どのAIで作った画像でも、このツールでスタンプに仕上げられます🌷</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modalQA">
+  <div class="modal-content">
+    <div class="modal-head">
+      <h3>💬 よくある質問</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="qa">
+        <div class="q">Q. お金はかかる？</div>
+        <div class="a">このツールは完全無料です。ChatGPTも無料プランで画像を作れます（1日の回数制限あり）。もし上限になったら、Geminiや Copilotなど他の無料AIでも同じプロンプトで作れますよ🌷</div>
+      </div>
+      <div class="qa">
+        <div class="q">Q. 画像はどこかに送られる？</div>
+        <div class="a">いいえ、お使いの端末の中だけで処理されます。安心して使ってくださいね😊</div>
+      </div>
+      <div class="qa">
+        <div class="q">Q. お友達にも教えてもいい？</div>
+        <div class="a">もちろん！このページのURLをそのままシェアしてもらえれば、誰でも使えます🍀</div>
+      </div>
+      <div class="qa">
+        <div class="q">Q. LINEに登録するのにお金はかかる？</div>
+        <div class="a">スタンプを「LINE Creators Market」で販売・配布するのは無料登録できます。審査に通れば自分で使ったり配ったりできます。</div>
+      </div>
+      <div class="qa">
+        <div class="q">Q. 何枚作ればいい？</div>
+        <div class="a">LINEスタンプは8/16/24/32/40枚のいずれかで1セット。最初は8枚か16枚がおすすめです🌷</div>
+      </div>
+      <div class="qa">
+        <div class="q">Q. 透明にならない・うまくいかない</div>
+        <div class="a">「白を透過」モードに切り替えると、白背景の画像はサクッと透明にできます✨</div>
+      </div>
+      <div class="qa" style="border-left:3px solid var(--terracotta);padding-left:10px">
+        <div class="q">Q. AI画像でスタンプを作るときの注意点は？</div>
+        <div class="a">
+          <strong>オリジナルキャラで作るのが一番安全です🌷</strong><br>
+          「ジブリ風」「サンリオ風」「ディズニー風」のようなプロンプトで作った画像は、著作権トラブルやLINE審査でリジェクトの原因になります。<br>
+          ChatGPT（OpenAI）の画像は商用利用OKですが、LINE側の審査基準も別途あるので、申請前に<a href="https://creator.line.me/ja/guideline/" target="_blank" style="color:var(--pink-dp);font-weight:700">LINE公式ガイドライン</a>も確認してくださいね✨
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LINE登録モーダル -->
+<div class="modal" id="modalLineUpload">
+  <div class="modal-content">
+    <div class="modal-head">
+      <h3>📲 LINEに登録する</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:14px;background:var(--beige);border:1.5px solid var(--ink);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.7">
+        <strong style="display:block;margin-bottom:3px">✦ 2つの方法から選べます</strong>
+        ① <strong>みんなに使ってもらう</strong>(無料申請・審査あり)<br>
+        ② <strong>自分や家族だけで使う</strong>(有料・審査なし・最短10分)
+      </p>
+
+      <h4>① みんなに使ってもらう「LINE Creators Market」</h4>
+      <p style="margin-bottom:8px;font-size:12.5px">
+        LINEスタンプとして<strong>世界中で売れる・配れる</strong>本格的な方法です。登録は無料ですが、審査があります🌷
+      </p>
+      <ol>
+        <li><strong>LINE Creators Marketに登録</strong><br>
+          <a href="https://creator.line.me/ja/" target="_blank" style="color:var(--pink-dp);font-weight:700">creator.line.me</a> にアクセス → 「登録はこちら」</li>
+        <li><strong>クリエイター情報を入力</strong><br>
+          名前・住所・メールアドレスなどを入力(LINEアカウントで簡単ログイン可)</li>
+        <li><strong>マイページから「新規登録」→「スタンプ」</strong></li>
+        <li><strong>タイトル・説明文を入力</strong><br>
+          日本語と英語の入力が必要(英語は短文でOK)</li>
+        <li><strong>画像をアップロード</strong><br>
+          ・スタンプ画像(8/16/24/32/40枚から選択)<br>
+          ・メイン画像(240×240) 1枚<br>
+          ・トークルームタブ画像(96×74) 1枚<br>
+          ※このツールでZIP保存したファイルがそのまま使えます🌷</li>
+        <li><strong>タグ・カテゴリ・販売価格を設定</strong></li>
+        <li><strong>右上「リクエスト」で審査申請</strong><br>
+          審査は数時間〜2日ほどで完了します</li>
+        <li><strong>承認されたら販売開始</strong><br>
+          自分でも購入(または無料DL設定)してLINEで使えるようになります✨</li>
+      </ol>
+      <p style="margin-top:8px;background:var(--bg);border:1px solid var(--beige-dp);border-radius:8px;padding:8px 10px;font-size:12px">
+        💡 18歳以上が対象です。販売する場合は送金先(銀行口座)登録が必要🍀
+      </p>
+
+      <h4 style="margin-top:18px;color:var(--terracotta)">✨ ③ LINE絵文字を作る場合</h4>
+      <p style="margin-bottom:8px;font-size:12.5px">
+        絵文字はスタンプより<strong>サイズが小さく</strong>（180×180）、申請も手軽。日常会話で使えるアイコンっぽいスタンプとして人気です🌷
+      </p>
+      <ol>
+        <li><strong>LINE Creators Marketで「絵文字」を選択</strong><br>
+          <a href="https://creator.line.me/ja/" target="_blank" rel="noopener noreferrer" style="color:var(--terracotta);font-weight:700">creator.line.me</a> → 新規登録 → 「<strong>絵文字</strong>」</li>
+        <li><strong>クリエイター情報を入力</strong>（スタンプと同じ）</li>
+        <li><strong>絵文字画像をアップロード</strong><br>
+          ・絵文字本体：180×180px（<strong>8/15/24/40個</strong>から選択）<br>
+          ・メイン画像：240×240px（1枚）<br>
+          ・タブ画像：96×74px（1枚）<br>
+          ※このツールで「<strong>絵文字用</strong>」サイズで作ったZIPがそのまま使えます🌷</li>
+        <li><strong>タイトル・説明文・タグを設定</strong></li>
+        <li><strong>右上「リクエスト」で審査申請</strong></li>
+      </ol>
+      <p style="margin-top:8px;background:var(--pink);border:1px solid var(--ink);border-radius:8px;padding:8px 10px;font-size:12px">
+        💡 絵文字はスタンプとセット販売もできます。手軽に始められるので最初の1セットにおすすめ🌷
+      </p>
+
+      <h4 style="margin-top:18px">② 自分や家族だけで使う「LINEスタンプメーカー」</h4>
+      <p style="margin-bottom:8px;font-size:12.5px">
+        LINE公式アプリで<strong>サクッと作って自分用に使える</strong>方法です。審査が早く、家族・友達LINEですぐ使えます🌷
+      </p>
+      <ol>
+        <li><strong>「LINEスタンプメーカー」アプリをインストール</strong><br>
+          App Store / Google Playで検索</li>
+        <li><strong>LINEアカウントでログイン</strong></li>
+        <li><strong>「新しいスタンプを作成」をタップ</strong></li>
+        <li><strong>このツールで作った画像をアップロード</strong><br>
+          ※アプリ内の切り抜き機能は使わずそのまま使えます</li>
+        <li><strong>タイトル・説明を入力して申請</strong></li>
+        <li><strong>審査(数時間〜)後に承認されたら使えます</strong></li>
+      </ol>
+      <p style="margin-top:8px;background:var(--bg);border:1px solid var(--beige-dp);border-radius:8px;padding:8px 10px;font-size:12px">
+        💡 こちらも無料で登録・販売可能です。スマホだけで完結するのでお手軽🍀
+      </p>
+
+      <h4 style="margin-top:18px">どっちがおすすめ？</h4>
+      <div class="qa">
+        <div class="q">📌 はじめて作る人</div>
+        <div class="a">②の<strong>LINEスタンプメーカー</strong>がスマホ完結でラクです</div>
+      </div>
+      <div class="qa">
+        <div class="q">📌 シリーズで本格的に作りたい</div>
+        <div class="a">①の<strong>Creators Market</strong>がおすすめ。販売・無料配布も可能</div>
+      </div>
+      <div class="qa">
+        <div class="q">📌 家族や友達LINEだけで使いたい</div>
+        <div class="a">どちらでもOK。承認後、LINE STOREから自分で購入(または無料DL)すれば使えます</div>
+      </div>
+
+      <p style="margin-top:14px;text-align:center;font-size:11.5px;color:var(--ink-soft)">
+        ※情報は時期により変わることがあります。最新の詳細はLINE公式をご確認くださいね🌷
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 初回ようこそモーダル -->
+  <div class="modal" id="modalWelcome">
+    <div class="modal-content">
+      <div class="modal-head">
+        <h3>🌷 はじめまして！</h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom:12px;font-size:13.5px;line-height:1.8">
+          <strong>このアプリでできること</strong><br>
+          ChatGPTで作った画像を、自動でスタンプ用に仕上げる<strong>無料ツール</strong>です🌷
+        </p>
+
+        <div style="background:var(--beige);border:1.5px solid var(--ink);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12.5px">
+          <strong style="display:block;margin-bottom:6px">✦ スタンプ申請に必要な3点セット</strong>
+          ・<strong>スタンプ画像</strong>：8/16/24/32/40枚<br>
+          ・<strong>表紙画像</strong>：1枚（240×240）<br>
+          ・<strong>タブ画像</strong>：1枚（96×74）
+        </div>
+
+        <p style="margin-bottom:12px;font-size:13px;line-height:1.8">
+          <strong>所要時間：30〜60分</strong>（ChatGPTでの画像生成が一番時間かかります🌷）
+        </p>
+
+        <div style="background:var(--bg);border:1.5px solid var(--beige-dp);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12.5px;line-height:1.7">
+          <strong style="display:block;margin-bottom:6px">🌷 流れはこんな感じ</strong>
+          ① ChatGPTでスタンプ用の画像を作る（プロンプト集あり）<br>
+          ② アプリに画像をアップ<br>
+          ③ ボタンぽち→透過＆リサイズ<br>
+          ④ 画像タップで微調整（位置ずらし・復元もOK）<br>
+          ⑤ ZIP保存 → LINE Creators Marketに申請🌷
+        </div>
+
+        <p style="margin-bottom:14px;font-size:12.5px;background:var(--pink);padding:10px;border-radius:8px;border:1.5px solid var(--ink);line-height:1.7">
+          ✦ <strong>ChatGPTを使わずに試したい方</strong>は「画像を選ぶ」ステップで「<strong>サンプル画像で試す</strong>」ボタンが用意されてます🌷
+        </p>
+
+        <button class="btn btn-primary" onclick="closeModal();localStorage.setItem('lineSticker_welcomeSeen','1')" style="margin-top:8px">
+          ✿ わかった、はじめる
+        </button>
+        <button class="btn" onclick="closeModal();openModal('modalUseFlow')" style="margin-top:8px;background:var(--paper)">
+          📖 もっと詳しい使い方を見る
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ステップインジケーター -->
+  <nav class="step-indicator" id="stepIndicator">
+    <a href="#step-prompt" class="step-pill" data-step="0"><span class="num">0</span>プロンプト</a>
+    <a href="#step-settings" class="step-pill" data-step="1"><span class="num">1</span>設定</a>
+    <a href="#step-upload" class="step-pill" data-step="2"><span class="num">2</span>画像選ぶ</a>
+    <a href="#step-process" class="step-pill" data-step="3"><span class="num">3</span>仕上げる</a>
+    <a href="#step-result" class="step-pill" data-step="4"><span class="num">4</span>保存</a>
+  </nav>
+
+  <header>
+    <span class="badge-top">✦ for yoloママ &amp; お友達</span>
+    <h1>ぽち<br><span class="accent">スタ</span></h1>
+    <p class="tagline">
+      <strong>AI（ChatGPT）</strong>で作った画像を、<br>
+      ぽちっとスタンプ用に変身✿<br>
+      <small style="display:inline-block;margin-top:6px;color:var(--ink-soft)">スタンプ16枚＋表紙＋タブ＝1セットが30〜60分で完成🌷</small>
+    </p>
+    <img src="https://manabi-esports.com/wp-content/uploads/2026/05/line-sticker-completion-thumb.png?v=5" alt="完成サンプル" style="max-width:300px;width:100%;margin-top:14px;border-radius:14px;border:2px solid var(--ink);box-shadow:var(--shadow-sm)">
+    <p style="font-size:11px;color:var(--ink-soft);margin-top:6px">↑ こんなふうに作れます🌷</p>
+  </header>
+
+  <!-- 説明ボタン -->
+  <div class="help-buttons">
+    <button class="help-btn" onclick="openModal('modalUseFlow')">
+      <span class="ic">📖</span>使い方の流れ
+    </button>
+    <button class="help-btn" onclick="openModal('modalChatGPT')">
+      <span class="ic">🤖</span>はじめてのChatGPT
+    </button>
+  </div>
+  <div class="help-buttons">
+    <button class="help-btn" onclick="openModal('modalQA')">
+      <span class="ic">💬</span>よくある質問
+    </button>
+    <button class="help-btn" style="background:var(--pink);" onclick="openModal('modalLineUpload')">
+      <span class="ic">📲</span>LINEに登録する
+    </button>
+  </div>
+
+  <!-- STEP0: ChatGPTプロンプト集 -->
+  <div class="card" id="step-prompt">
+    <h2><span class="step-badge">0</span>ChatGPT用プロンプト集</h2>
+    <div style="background:var(--beige);border:1.5px solid var(--beige-dp);border-radius:10px;padding:8px 12px;margin-bottom:12px;font-size:11.5px;line-height:1.6;color:var(--ink)">
+      ⚠ <strong>「ジブリ風」「サンリオ風」等の既存キャラ風プロンプトはNG</strong>：著作権トラブル＆LINE審査リジェクトの原因になります。オリジナルキャラで作ろう🌷
+    </div>
+    <p class="prompt-intro">
+      タブから選んで「コピー」を押すだけ🌷<br>
+      ChatGPTに貼り付けるとスタンプ用画像ができます。<br>
+      <span style="font-size:12px;color:var(--ink-soft)">※ Gemini・Copilotなど他の無料AIでも同じプロンプトが使えます</span>
+    </p>
+    <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:10px;text-decoration:none;font-size:12.5px;font-weight:700;box-shadow:var(--shadow-sm)">
+      🌷 ChatGPTを開く →
+    </a>
+    <div class="url-copy-block">
+      📲 <strong>スマホで開きにくい時は</strong>URLをコピーしてSafari/Chromeで開いてね🌷
+      <div class="url-copy-row">
+        <input type="text" value="https://chatgpt.com" readonly id="chatgptUrl">
+        <button class="url-copy-btn" data-copy-target="chatgptUrl">コピー</button>
+      </div>
+    </div>
+
+    <!-- プロンプトの説明（画像版） -->
+    <div style="margin-top:14px;margin-bottom:14px">
+      <img src="https://manabi-esports.com/wp-content/uploads/2026/05/line-prompt-intro-infographic.jpg?v=1" alt="プロンプトってなに？" style="width:100%;height:auto;border-radius:14px;border:2px solid var(--ink);box-shadow:var(--shadow-sm)">
+    </div>
+
+    <!-- プロンプトタブ（2行: 上＝枚数別 / 下＝申請＆絵文字） -->
+    <div style="background:linear-gradient(135deg, var(--pink) 0%, var(--beige) 100%);border:2px solid var(--ink);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:14px;font-weight:700;text-align:center;color:var(--ink);box-shadow:var(--shadow-sm)">
+      🌷 まずは作りたい<strong style="color:var(--terracotta)">枚数</strong>を選ぼう ↓
+    </div>
+    <div class="prompt-tabs prompt-tabs-main">
+      <button class="prompt-tab active" data-tab="0" data-size="sticker" data-split="8">📑 8枚</button>
+      <button class="prompt-tab" data-tab="1" data-size="sticker" data-split="16">📑 16枚</button>
+      <button class="prompt-tab" data-tab="2" data-size="sticker" data-split="24">📑 24枚</button>
+      <button class="prompt-tab" data-tab="3" data-size="sticker" data-split="40">📑 40枚</button>
+    </div>
+    <div class="prompt-tabs prompt-tabs-meta">
+      <span class="tabs-label">申請・特別用</span>
+      <button class="prompt-tab" data-tab="4">📝 申請用タイトル</button>
+      <button class="prompt-tab" data-tab="5" data-size="emoji" data-split="15">✨ 絵文字</button>
+    </div>
+    <div class="prompt-section tab-mode" id="promptSection">
+
+    <div class="prompt-item">
+      <div class="prompt-head">
+        <div class="prompt-head-left">
+          <span class="prompt-title">📑 ① 8枚スタンプセット（4×2）</span>
+        </div>
+        <span class="prompt-arrow">▸</span>
+      </div>
+      <div class="prompt-body">
+        <div class="char-picker">
+          <strong>🌷 キャラを選んでから「コピーする」を押してね</strong>
+          <div class="char-picker-options">
+            <button class="char-quick" data-char="ふわふわのくまちゃん">🐻 くま</button>
+            <button class="char-quick" data-char="白いうさぎちゃん">🐰 うさぎ</button>
+            <button class="char-quick" data-char="まんまるな黒猫">🐈 ねこ</button>
+            <button class="char-quick" data-char="まあるい子犬">🐶 いぬ</button>
+            <button class="char-quick" data-char="やさしい雰囲気の女の子">👧 女の子</button>
+          </div>
+          <input type="text" class="char-input" placeholder="自分で入力もOK（例: ピンクのうさぎ・パステルくま）">
+          <div class="char-helper">
+            ✦ ボタン押すと自動入力。「コピー」で文中の【◯◯】が全部置換🌷
+          </div>
+        </div>
+        <button class="copy-btn">コピーする</button>
+        <div class="prompt-text">LINEスタンプ用の画像を1枚にまとめて作ってください。
+
+【画像サイズ・レイアウト】★絶対守ってね★
+・1024×512px の横長キャンバス（4列×2行用）
+・4列×2行のグリッド = 8マス
+・各マスは正確に256×256px
+・全マス同じサイズ・均等配置
+・マス間の余白：完全にゼロ（隣接）
+
+【キャラクター・デザイン】（自由に変えてOK🌷）
+・【◯◯】
+・全8マス同じキャラ・同じタッチ・同じ大きさ
+・キャラはマスの中央・周囲に少し余白
+
+【8マスの内容（左→右、上→下の順）】
+1. おはよう（笑顔・手を上げる）
+2. ありがとう（お辞儀）
+3. OK!（親指立て）
+4. ごめんね（涙ぐみ）
+5. おやすみ（zzz・寝顔）
+6. お疲れさま（カップ）
+7. だいすき♡（ハート）
+8. またね（手を振る）
+
+【重要】
+・背景は完全な白(#FFFFFF)
+・1マスに1キャラだけ・はみ出さない
+・等分割で切る前提：位置のズレ厳禁
+・キャラは小さめに描いてマス内に余裕を持たせる</div>
+      </div>
+    </div>
+
+    <div class="prompt-item">
+      <div class="prompt-head">
+        <div class="prompt-head-left">
+          <span class="prompt-title">📑 ② 16枚スタンプセット（4×4）</span>
+        </div>
+        <span class="prompt-arrow">▸</span>
+      </div>
+      <div class="prompt-body">
+        <div class="char-picker">
+          <strong>🌷 キャラを選んでから「コピーする」を押してね</strong>
+          <div class="char-picker-options">
+            <button class="char-quick" data-char="ふわふわのくまちゃん">🐻 くま</button>
+            <button class="char-quick" data-char="白いうさぎちゃん">🐰 うさぎ</button>
+            <button class="char-quick" data-char="まんまるな黒猫">🐈 ねこ</button>
+            <button class="char-quick" data-char="まあるい子犬">🐶 いぬ</button>
+            <button class="char-quick" data-char="やさしい雰囲気の女の子">👧 女の子</button>
+          </div>
+          <input type="text" class="char-input" placeholder="自分で入力もOK（例: ピンクのうさぎ・パステルくま）">
+          <div class="char-helper">
+            ✦ ボタン押すと自動入力。「コピー」で文中の【◯◯】が全部置換🌷
+          </div>
+        </div>
+        <button class="copy-btn">コピーする</button>
+        <div class="prompt-text">LINEスタンプ用の画像を1枚にまとめて作ってください。
+
+【画像サイズ・レイアウト】★絶対守ってね★
+・1024×1024px の正方形キャンバス
+・4列×4行のグリッド = 16マス
+・各マスは正確に256×256px
+・全マス同じサイズ・均等配置
+・マス間の余白：完全にゼロ（隣接）
+
+【キャラクター・デザイン】（自由に変えてOK🌷）
+・【◯◯】
+・全16マス同じキャラ・同じタッチ・同じ大きさ
+・キャラはマスの中央・周囲に少し余白
+
+【16マスの内容（左→右、上→下の順）】
+1. おはよう（笑顔・手を上げる）
+2. ありがとう（お辞儀）
+3. うれしい♡（ほっぺに手）
+4. ごめんね（涙ぐみ）
+5. OK!（親指立て）
+6. おやすみ（zzz・寝顔）
+7. お願い!（両手合わせ）
+8. かなしい…（涙）
+9. だいすき♡（ハート）
+10. いってきます（走る）
+11. おかえり（手を振る）
+12. お疲れさま☕（カップ）
+13. むずかしい…（困り顔）
+14. いいね!（ピース）
+15. ぎゅっ（ハグ）
+16. がんばる!（ガッツポーズ）
+
+【重要】
+・背景は完全な白(#FFFFFF)
+・1マスに1キャラだけ・はみ出さない
+・等分割で切る前提：位置のズレ厳禁
+・キャラは小さめに描いてマス内に余裕を持たせる</div>
+      </div>
+    </div>
+
+    <div class="prompt-item">
+      <div class="prompt-head">
+        <div class="prompt-head-left">
+          <span class="prompt-title">📑 ③ 24枚スタンプセット（6×4）</span>
+        </div>
+        <span class="prompt-arrow">▸</span>
+      </div>
+      <div class="prompt-body">
+        <div class="char-picker">
+          <strong>🌷 キャラを選んでから「コピーする」を押してね</strong>
+          <div class="char-picker-options">
+            <button class="char-quick" data-char="ふわふわのくまちゃん">🐻 くま</button>
+            <button class="char-quick" data-char="白いうさぎちゃん">🐰 うさぎ</button>
+            <button class="char-quick" data-char="まんまるな黒猫">🐈 ねこ</button>
+            <button class="char-quick" data-char="まあるい子犬">🐶 いぬ</button>
+            <button class="char-quick" data-char="やさしい雰囲気の女の子">👧 女の子</button>
+          </div>
+          <input type="text" class="char-input" placeholder="自分で入力もOK（例: ピンクのうさぎ・パステルくま）">
+          <div class="char-helper">
+            ✦ ボタン押すと自動入力。「コピー」で文中の【◯◯】が全部置換🌷
+          </div>
+        </div>
+        <button class="copy-btn">コピーする</button>
+        <div class="prompt-text">LINEスタンプ用の画像を1枚にまとめて作ってください。
+
+【画像サイズ・レイアウト】★絶対守ってね★
+・1536×1024px の横長キャンバス（6列×4行用）
+・6列×4行のグリッド = 24マス
+・各マスは正確に256×256px
+・全マス同じサイズ・均等配置
+・マス間の余白：完全にゼロ（隣接）
+
+【キャラクター・デザイン】（自由に変えてOK🌷）
+・【◯◯】
+・全24マス同じキャラ・同じタッチ・同じ大きさ
+・キャラはマスの中央・周囲に少し余白
+
+【24マスの内容（左→右、上→下の順）】
+1. おはよう
+2. ありがとう
+3. うれしい♡
+4. ごめんね
+5. OK!
+6. おやすみ
+7. お願い!
+8. かなしい…
+9. だいすき♡
+10. いってきます
+11. おかえり
+12. お疲れさま☕
+13. むずかしい…
+14. いいね!
+15. ぎゅっ（ハグ）
+16. がんばる!
+17. やったー!
+18. すごい!
+19. なるほど
+20. え？（驚き）
+21. うん（うなずき）
+22. たのしい♪
+23. ねむい
+24. もしもし（電話）
+
+【重要】
+・背景は完全な白(#FFFFFF)
+・1マスに1キャラだけ・はみ出さない
+・等分割で切る前提：位置のズレ厳禁
+・キャラは小さめに描いてマス内に余裕を持たせる</div>
+      </div>
+    </div>
+
+    <div class="prompt-item">
+      <div class="prompt-head">
+        <div class="prompt-head-left">
+          <span class="prompt-title">📑 ④ 40枚スタンプセット（8×5）</span>
+        </div>
+        <span class="prompt-arrow">▸</span>
+      </div>
+      <div class="prompt-body">
+        <div class="char-picker">
+          <strong>🌷 キャラを選んでから「コピーする」を押してね</strong>
+          <div class="char-picker-options">
+            <button class="char-quick" data-char="ふわふわのくまちゃん">🐻 くま</button>
+            <button class="char-quick" data-char="白いうさぎちゃん">🐰 うさぎ</button>
+            <button class="char-quick" data-char="まんまるな黒猫">🐈 ねこ</button>
+            <button class="char-quick" data-char="まあるい子犬">🐶 いぬ</button>
+            <button class="char-quick" data-char="やさしい雰囲気の女の子">👧 女の子</button>
+          </div>
+          <input type="text" class="char-input" placeholder="自分で入力もOK（例: ピンクのうさぎ・パステルくま）">
+          <div class="char-helper">
+            ✦ ボタン押すと自動入力。「コピー」で文中の【◯◯】が全部置換🌷
+          </div>
+        </div>
+        <button class="copy-btn">コピーする</button>
+        <div class="prompt-text">LINEスタンプ用の画像を1枚にまとめて作ってください。
+
+【画像サイズ・レイアウト】★絶対守ってね★
+・2048×1280px の横長キャンバス（8列×5行用）
+・8列×5行のグリッド = 40マス
+・各マスは正確に256×256px
+・全マス同じサイズ・均等配置
+・マス間の余白：完全にゼロ（隣接）
+
+【キャラクター・デザイン】（自由に変えてOK🌷）
+・【◯◯】
+・全40マス同じキャラ・同じタッチ・同じ大きさ
+・キャラはマスの中央・周囲に少し余白
+
+【40マスの内容（左→右、上→下の順）】
+1. おはよう
+2. ありがとう
+3. うれしい♡
+4. ごめんね
+5. OK!
+6. おやすみ
+7. お願い!
+8. かなしい…
+9. だいすき♡
+10. いってきます
+11. おかえり
+12. お疲れさま☕
+13. むずかしい…
+14. いいね!
+15. ぎゅっ（ハグ）
+16. がんばる!
+17. やったー!
+18. すごい!
+19. なるほど
+20. え？（驚き）
+21. うん（うなずき）
+22. たのしい♪
+23. ねむい
+24. もしもし（電話）
+25. はーい（手を上げる）
+26. お願いします
+27. すみません（お辞儀）
+28. 助かる~
+29. うーん…（考え中）
+30. 笑（爆笑）
+31. 草（笑）
+32. わかる~
+33. よろしくね
+34. お先に失礼します
+35. げんき?
+36. キラキラ目
+37. ナイス!
+38. グッド!（親指）
+39. ばいばい
+40. 最高!
+
+【重要】
+・背景は完全な白(#FFFFFF)
+・1マスに1キャラだけ・はみ出さない
+・等分割で切る前提：位置のズレ厳禁
+・キャラは小さめに描いてマス内に余裕を持たせる</div>
+      </div>
+    </div>
+
+
+    <div class="prompt-item" style="border-color:var(--pink-dp);background:linear-gradient(135deg, var(--bg) 0%, var(--pink) 100%)">
+      <div class="prompt-head">
+        <div class="prompt-head-left">
+          <span class="prompt-title">📝 ⑤ 申請用「タイトル＆説明文」を作る</span>
+        </div>
+        <span class="prompt-arrow">▸</span>
+      </div>
+      <div class="prompt-body">
+        <div style="background:var(--paper);border:1.5px solid var(--pink-dp);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;line-height:1.7">
+          🌷 <strong>使い方</strong><br>
+          ① 下の「コピーする」を押す<br>
+          ② ChatGPTに貼り付ける<br>
+          ③ 文中の「<strong>（ここに作ったスタンプの説明を入れてください）</strong>」を自分のスタンプの内容に置き換える<br>
+          ④ ChatGPTが申請用の<strong>タイトル・説明文・タグ</strong>を作ってくれる🐻<br>
+          ⑤ それをLINE Creators Marketの申請画面にそのままコピペして使えます✨
+        </div>
+        <button class="copy-btn">コピーする</button>
+        <div class="prompt-text">LINE Creators Marketに申請するためのスタンプセット情報を作ってください。
+
+【セットの内容】
+（ここに作ったスタンプの説明を入れてください）
+例: ゆるくてかわいい女の子キャラ。日常で使える挨拶や感情を16表情そろえました。
+
+【作ってほしいもの】
+1. スタンプセットのタイトル（日本語・全角40文字以内）
+2. スタンプセットのタイトル（英語・40文字以内）
+3. スタンプセットの説明文（日本語・全角160文字以内）
+4. スタンプセットの説明文（英語・160文字以内）
+5. 検索用タグ（日本語・5個まで）
+
+【トーン】
+・親しみやすく、クスッと笑える
+・「使いたくなる」気持ちを引き出す
+・販売対象は10〜40代の女性
+・絵文字は使わず、可愛い言い回しで</div>
+      </div>
+    </div>
+
+    <div class="prompt-item" style="border-color:var(--terracotta);background:linear-gradient(135deg, var(--bg) 0%, var(--beige) 100%)">
+      <div class="prompt-head">
+        <div class="prompt-head-left">
+          <span class="prompt-title">✨ ⑥ 絵文字専用・小さくてかわいい15個</span>
+        </div>
+        <span class="prompt-arrow">▸</span>
+      </div>
+      <div class="prompt-body">
+        <div class="char-picker">
+          <strong>🌷 キャラを選んでから「コピーする」を押してね</strong>
+          <div class="char-picker-options">
+            <button class="char-quick" data-char="ふわふわのくまちゃん">🐻 くま</button>
+            <button class="char-quick" data-char="白いうさぎちゃん">🐰 うさぎ</button>
+            <button class="char-quick" data-char="まんまるな黒猫">🐈 ねこ</button>
+            <button class="char-quick" data-char="まあるい子犬">🐶 いぬ</button>
+            <button class="char-quick" data-char="やさしい雰囲気の女の子">👧 女の子</button>
+          </div>
+          <input type="text" class="char-input" placeholder="自分で入力もOK（例: ピンクのうさぎ）">
+          <div class="char-helper">
+            ✦ ボタン押すと自動で入力されます。「コピーする」を押すと文中の【◯◯】が全部置換されます🌷
+          </div>
+        </div>
+        <button class="copy-btn">コピーする</button>
+        <div class="prompt-text">LINE絵文字用の画像を1枚にまとめて作ってください。
+
+【画像サイズ・レイアウト】★絶対守ってね★
+・1280×768px の横長キャンバス（5列×3行用）
+・5列×3行のグリッド = 15マス
+・各マスは正確に256×256px
+・全マス同じサイズ・均等配置
+・マス間の余白：完全にゼロ（隣接）
+
+【キャラクター・デザイン】（自由に変えてOK🌷）
+・【◯◯】のアイコン化（顔メイン・上半身まで）
+・全15マス同じキャラ・同じタッチ・同じ大きさ
+・色はパステル系・線は太め
+・遠目（小さく表示）でも分かるシンプルさ
+・キャラはマスの中央・大きめに描く（小さい絵文字なので）
+
+【15マスの内容（左→右、上→下の順）】
+1. にっこり笑顔
+2. ウィンク
+3. ハートを浮かべて
+4. キラキラ目で「すき」
+5. 困った顔
+6. 涙ぐむ
+7. 親指立て「OK」
+8. ピース
+9. ハートマーク（顔なし・ハートだけ）
+10. 「？」を浮かべる
+11. キス顔
+12. ガッツポーズ
+13. 寝ている顔
+14. ニヤッと笑顔
+15. 拍手
+
+【重要】
+・背景は完全な白(#FFFFFF)
+・1マスに1キャラだけ・はみ出さない
+・等分割で切る前提：位置のズレ厳禁
+・文字は入れない（小さいので読めない）</div>
+      </div>
+    </div>
+
+    </div>
+    <!-- /.prompt-section -->
+
+    <div style="margin-top:14px">
+      <img src="https://manabi-esports.com/wp-content/uploads/2026/05/line-tips-infographic.jpg?v=1" alt="上手に作るコツ" style="width:100%;height:auto;border-radius:14px;border:2px solid var(--ink);box-shadow:var(--shadow-sm)">
+    </div>
+  </div>
+
+  <!-- STEP1: 設定 -->
+  <div class="card" id="step-settings">
+    <h2><span class="step-badge">1</span>どう仕上げる？</h2>
+
+    <div style="background:var(--bg);border:1.5px solid var(--beige-dp);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;line-height:1.6">
+      💡 <strong>わからなかったら、デフォルトのままでOK🌷</strong> ChatGPT画像なら下の設定そのままできれいに仕上がります✨
+    </div>
+
+    <!-- ① プリセットセット切替 -->
+    <div class="preset-buttons">
+      <button class="preset-btn" id="presetStamp" data-preset="stamp">
+        <span class="preset-icon">📦</span>
+        スタンプ<br>申請セット
+        <span class="preset-label">スタンプ→表紙→タブ</span>
+      </button>
+      <button class="preset-btn" id="presetEmoji" data-preset="emoji">
+        <span class="preset-icon">✨</span>
+        絵文字<br>申請セット
+        <span class="preset-label">絵文字→表紙→タブ</span>
+      </button>
+    </div>
+    <div class="preset-guide" id="presetGuide">
+      <div class="preset-guide-title" id="presetGuideTitle"></div>
+      <div class="preset-steps" id="presetSteps"></div>
+      <div class="preset-guide-msg" id="presetGuideMsg"></div>
+      <div class="preset-guide-btns">
+        <button class="preset-next-btn" id="presetNextBtn">次のサイズへ →</button>
+        <button class="preset-close-btn" id="presetCloseBtn">✕ ガイドを閉じる</button>
+      </div>
+    </div>
+
+    <div class="set-name-block">
+      <label for="setNameInput">🌷 スタンプセットの名前（自分用メモ）</label>
+      <input type="text" id="setNameInput" class="set-name-input" placeholder="例: yoloママオリジナル / さくらシリーズ" maxlength="40">
+      <div class="mode-info" style="margin-top:6px">
+        ✦ ZIPファイル名や保存ファイル名に使われます🌷 空欄でもOK
+      </div>
+    </div>
+
+    <div class="settings">
+      <div class="setting-block">
+        <label>背景の処理</label>
+        <div class="toggle-group" data-name="bg">
+          <button data-value="white" class="active">ChatGPT画像を透明に</button>
+          <button data-value="keep">そのまま使う</button>
+        </div>
+        <div class="mode-info" id="modeInfo">
+          ✦ ChatGPTで作った白背景の画像を、サクッと透明に仕上げます🌷
+        </div>
+      </div>
+      <div class="setting-block">
+        <label>サイズ</label>
+        <div class="toggle-group" data-name="size" style="flex-wrap:wrap">
+          <button data-value="sticker" class="active">スタンプ用<small>370×320</small></button>
+          <button data-value="main">表紙用<small>240×240</small></button>
+          <button data-value="tab">タブ用<small>96×74</small></button>
+          <button data-value="emoji">絵文字用<small>180×180</small></button>
+        </div>
+        <div class="mode-info" id="sizeInfo">
+          ✦ 8/16/24/32/40枚まとめて作って、ZIPで申請🌷
+        </div>
+      </div>
+    </div>
+    <div class="setting-block" style="margin-top:14px">
+      <label>🆕 1枚にまとめて作られた時は分割</label>
+      <div style="background:linear-gradient(135deg, var(--beige) 0%, var(--pink) 100%);border:2px solid var(--ink);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:12.5px;line-height:1.7;box-shadow:1px 1px 0 var(--ink)">
+        📌 <strong>ChatGPTで枚数を変えた時は</strong>、ここの分割も同じ枚数に合わせてね🌷<br>
+        例：ChatGPTで「24枚に増やして」とお願いした → ここを <strong>「24枚に分割」</strong> にする
+      </div>
+      <select id="splitSelect" class="split-select">
+        <option value="off">分割しない（そのまま使う）</option>
+        <option value="8">8枚に分割</option>
+        <option value="15">15枚に分割（絵文字用）</option>
+        <option value="16">16枚に分割</option>
+        <option value="24">24枚に分割</option>
+        <option value="40">40枚に分割</option>
+      </select>
+      <div class="mode-info" id="splitInfo">
+        ✦ ChatGPTが「1枚にまとめて」返してきた時に使ってね🌷 1枚アップした時だけ動きます
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <img src="https://manabi-esports.com/wp-content/uploads/2026/05/line-3types-infographic.jpg?v=1" alt="LINE申請には3種類の画像が必要です" style="width:100%;height:auto;border-radius:14px;border:2px solid var(--ink);box-shadow:var(--shadow-sm)">
+    </div>
+  </div>
+
+  <!-- STEP2: アップロード -->
+  <div class="card" id="step-upload">
+    <h2><span class="step-badge">2</span>画像を選ぶ</h2>
+    <div class="dropzone" id="dropzone">
+      <span class="dropzone-icon">🖼️</span>
+      <strong>ここをタップ or ドラッグ&ドロップ</strong>
+      <span>PNG / JPG / WebP / HEIC・複数まとめてOK</span>
+    </div>
+    <input type="file" id="fileInput" accept="image/*,.heic,.heif" multiple>
+    <p style="font-size:12px;margin-top:10px;color:var(--ink-soft);text-align:center">
+      ✦ 画像はサーバーに送られません。お使いの端末の中だけで処理されます
+    </p>
+    <div style="margin-top:14px;padding:12px;background:var(--beige);border:2px dashed var(--ink);border-radius:12px;text-align:center">
+      <p style="font-size:12.5px;margin-bottom:8px;font-weight:700;color:var(--ink)">🌷 まずは試してみたい？</p>
+      <button class="btn" id="trySampleBtn" style="background:var(--sage);font-size:13px;padding:10px 16px">
+        ✨ サンプル画像で試す（ChatGPT不要）
+      </button>
+      <p style="font-size:11px;margin-top:6px;color:var(--ink-soft)">
+        ↑ 用意した16枚のサンプルで、アプリの流れを体験できます
+      </p>
+    </div>
+  </div>
+
+  <!-- STEP3: 処理 -->
+  <div class="card hidden" id="processCard">
+    <a id="step-process"></a>
+    <h2><span class="step-badge">3</span>仕上げる</h2>
+    <p style="font-size:13px;margin-bottom:10px">
+      <strong id="fileCount">0</strong> 枚の画像を読み込みました
+    </p>
+    <button class="btn btn-primary" id="processBtn">
+      ✿ かんたん仕上げスタート
+    </button>
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-text" id="progressText">準備中...</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="alert" id="alertBox">
+      <strong>🌷 おしらせ</strong>
+      <span id="alertMessage"></span>
+    </div>
+  </div>
+
+  <!-- STEP4: ダウンロード -->
+  <div class="card hidden" id="resultCard">
+    <a id="step-result"></a>
+    <h2><span class="step-badge">4</span>できあがり！</h2>
+    <div id="resultBanner" class="featured-banner" style="display:none"></div>
+    <p id="resultIntro" style="font-size:13px;color:var(--ink-soft);margin-bottom:6px">
+      下のプレビューで確認してから、まとめて保存できます🌷
+    </p>
+    <div class="selection-bar" id="selectionBar" style="display:none">
+      <span><strong id="selCount">0</strong> / <span id="selTotal">0</span> 枚を選択中</span>
+      <span style="display:flex;gap:6px">
+        <button id="selAllBtn">ぜんぶ選ぶ</button>
+        <button id="selNoneBtn">解除</button>
+      </span>
+    </div>
+    <!-- ③ 透過チェッカートグル -->
+    <button class="checker-toggle" id="checkerToggle">🔲 透過チェック表示</button>
+
+    <div class="preview-grid" id="previewGrid"></div>
+
+    <!-- ② 一括リネーム -->
+    <div class="rename-block" id="renameBlock">
+      <label>📝 ファイル名の形式</label>
+      <div class="rename-options">
+        <label class="rename-option active" data-rename="sequential">
+          <input type="radio" name="renameMode" value="sequential" checked>
+          01.png 〜 40.png（LINE推奨）
+        </label>
+        <label class="rename-option" data-rename="prefix">
+          <input type="radio" name="renameMode" value="prefix">
+          プレフィックス＋連番
+        </label>
+        <label class="rename-option" data-rename="original">
+          <input type="radio" name="renameMode" value="original">
+          そのまま（元のファイル名）
+        </label>
+      </div>
+      <input type="text" class="rename-prefix-input" id="renamePrefixInput" placeholder="例: sticker" maxlength="30">
+    </div>
+
+    <div class="btn-row" id="resultBtnRow">
+      <button class="btn btn-secondary" id="zipBtn">
+        📦 選んだ画像をZIPで保存
+      </button>
+      <button class="btn btn-line" id="lineBtn" onclick="window.open('https://creator.line.me/ja/','_blank','noopener,noreferrer')">
+        🌷 LINE Creators Marketへ
+      </button>
+      <button class="btn" id="resetBtn">
+        ↻ 最初からやり直す
+      </button>
+    </div>
+    <div class="url-copy-block" style="margin-top:12px">
+      📲 <strong>スマホでページが開きにくい時は</strong>URLコピーして Safari/Chrome で開いてね🌷
+      <div class="url-copy-row">
+        <input type="text" value="https://creator.line.me/ja/" readonly id="lineUrl">
+        <button class="url-copy-btn" data-copy-target="lineUrl">コピー</button>
+      </div>
+    </div>
+    <div class="hint" id="resultHint" style="margin-top:14px">
+      <strong>📱 スマホで保存するときは</strong>
+      ZIPファイルが「ファイル」アプリに保存されます。中身を取り出すと1枚ずつ画像になりますよ🍀
+    </div>
+  </div>
+
+  <footer>
+    Made with <span class="heart">♡</span> for yoloママ &amp; friends<br>
+    画像はすべてあなたの端末内で処理されます
+  </footer>
+
+</div>
+
+<!-- グリッド分割プレビュー -->
+<div class="modal" id="gridPreviewModal">
+  <div class="modal-content" style="max-width:480px">
+    <div class="modal-head">
+      <h3>📐 分割プレビュー</h3>
+      <button class="modal-close" onclick="document.getElementById('gridPreviewModal').classList.remove('show')">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center;padding:10px 14px 20px">
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:10px">赤い線で切り取ります。よければOKを押してね🌷<br><span style="font-size:12px">💡 切り取った後でも、画像タップで位置の微調整＆復元ができます</span></p>
+      <canvas id="gridPreviewCanvas" style="max-width:100%;border-radius:10px;border:2px solid var(--ink)"></canvas>
+      <p id="gridPreviewInfo" style="font-size:12px;color:var(--ink-soft);margin-top:6px"></p>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
+        <button class="btn btn-primary" id="gridPreviewOk" style="flex:1;max-width:220px">✂️ OK！この分割で仕上げる</button>
+        <button class="btn" id="gridPreviewCancel" style="flex:1;max-width:120px;background:var(--paper)">戻る</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ④ 微調整パネル -->
+<div class="adjust-overlay" id="adjustOverlay">
+  <div class="adjust-panel">
+    <div class="adjust-header">
+      <h3>🎨 微調整</h3>
+      <button class="modal-close" id="adjustCloseBtn">✕</button>
+    </div>
+    <div class="adjust-preview" id="adjustPreview">
+      <canvas id="adjustCanvas" style="max-width:100%;max-height:200px"></canvas>
+      <div class="adjust-drag-hint">👆 画像をドラッグして位置調整できます</div>
+    </div>
+
+    <!-- A. 位置調整 -->
+    <div class="adjust-section open" id="adjustPos">
+      <div class="adjust-section-head">📐 位置調整 <span class="adjust-arrow">▸</span></div>
+      <div class="adjust-section-body">
+        <div class="adjust-arrows">
+          <button class="arr-up" data-dir="up">↑</button>
+          <button class="arr-left" data-dir="left">←</button>
+          <button class="arr-center" id="adjustPosReset">中央</button>
+          <button class="arr-right" data-dir="right">→</button>
+          <button class="arr-down" data-dir="down">↓</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- B. サイズ調整 -->
+    <div class="adjust-section" id="adjustSize">
+      <div class="adjust-section-head">🔍 サイズ調整 <span class="adjust-arrow">▸</span></div>
+      <div class="adjust-section-body">
+        <div class="adjust-slider-row">
+          <label>倍率</label>
+          <input type="range" id="adjustScale" min="50" max="150" value="100" step="1">
+          <span class="adjust-val" id="adjustScaleVal">100%</span>
+        </div>
+        <button class="adjust-reset" id="adjustSizeReset">リセット</button>
+      </div>
+    </div>
+
+    <!-- C. 明るさ・色合い調整 -->
+    <div class="adjust-section" id="adjustColor">
+      <div class="adjust-section-head">☀️ 明るさ・色合い <span class="adjust-arrow">▸</span></div>
+      <div class="adjust-section-body">
+        <div class="adjust-slider-row">
+          <label>明るさ</label>
+          <input type="range" id="adjustBright" min="-50" max="50" value="0" step="1">
+          <span class="adjust-val" id="adjustBrightVal">0</span>
+        </div>
+        <div class="adjust-slider-row">
+          <label>彩度</label>
+          <input type="range" id="adjustSat" min="-50" max="50" value="0" step="1">
+          <span class="adjust-val" id="adjustSatVal">0</span>
+        </div>
+        <button class="adjust-reset" id="adjustColorReset">リセット</button>
+      </div>
+    </div>
+
+    <div class="adjust-footer">
+      <button class="adjust-cancel" id="adjustCancelBtn">✕ キャンセル</button>
+      <button class="adjust-apply" id="adjustApplyBtn">✓ 適用</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+<script>
+const state = {
+  files: [],
+  results: [],
+  settings: { bg: 'white', size: 'sticker', split: 'off' },
+  setName: '',
+  selected: new Set(),  // チェック済み画像のindex
+  aiModule: null,
+  aiLoading: false,
+};
+
+const STORAGE_KEY = 'lineSticker_v1';
+
+// ===== localStorage 設定保存・復元 =====
+function saveSettings() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      settings: state.settings,
+      setName: state.setName,
+    }));
+  } catch (e) { /* ignore */ }
+}
+
+function restoreSettings() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.settings) Object.assign(state.settings, data.settings);
+    if (data.setName) state.setName = data.setName;
+  } catch (e) { /* ignore */ }
+}
+
+restoreSettings();
+
+// ※ようこそモーダルの自動表示は無効化しました（プライベートモードで全クリックを吸収する不具合のため）
+// 必要なら 📖使い方の流れ ボタンから開けます
+
+const SPLIT_CONFIG = {
+  '8':  { rows: 2, cols: 4, label: '8枚（4×2）' },
+  '15': { rows: 3, cols: 5, label: '15枚（5×3）絵文字用' },
+  '16': { rows: 4, cols: 4, label: '16枚（4×4）' },
+  '24': { rows: 4, cols: 6, label: '24枚（6×4 / 4×6 自動）' },
+  '40': { rows: 5, cols: 8, label: '40枚（8×5 / 5×8 自動）' },
+};
+
+// ===== モーダル =====
+function openModal(id) {
+  document.getElementById(id).classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', e => {
+    if (e.target === m) closeModal();
+  });
+});
+
+// ===== モード説明の切り替え =====
+const modeDescriptions = {
+  white: '✦ ChatGPTで作った白背景の画像を、サクッと透明に仕上げます🌷',
+  keep: '✦ 背景はそのままで、サイズだけスタンプ用に整えます',
+};
+
+const sizeDescriptions = {
+  sticker: '✦ 8/16/24/32/40枚まとめて作って、ZIPで申請🌷',
+  main:    '✦ 表紙用は<strong>1枚だけ</strong>。プレビューの「保存」ボタンで個別保存してね（ZIP不要）',
+  tab:     '✦ タブ用は<strong>1枚だけ</strong>。プレビューの「保存」ボタンで個別保存してね（ZIP不要）',
+  emoji:   '✨ <strong>絵文字</strong>用サイズ（8/15/24/40個セット）。15枚分割と組み合わせて使ってね🌷',
+};
+
+// ===== プロンプトタブ =====
+const promptItems = document.querySelectorAll('.prompt-section .prompt-item');
+const promptTabs = document.querySelectorAll('.prompt-tab');
+function switchPromptTab(idx) {
+  promptTabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+  promptItems.forEach((item, i) => {
+    item.classList.toggle('active', i === idx);
+    item.classList.toggle('open', i === idx);
+  });
+}
+promptTabs.forEach((tab, i) => {
+  tab.addEventListener('click', () => switchPromptTab(i));
+});
+// 初期表示：最初のタブを開く
+if (promptItems.length > 0) switchPromptTab(0);
+
+// 旧アコーディオン（タブモード以外で動くように残す）
+document.querySelectorAll('.prompt-head').forEach(head => {
+  head.addEventListener('click', () => {
+    if (head.closest('.tab-mode')) return; // タブモードでは無効
+    head.closest('.prompt-item').classList.toggle('open');
+  });
+});
+
+// ===== URL コピーボタン =====
+document.querySelectorAll('.url-copy-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const targetId = btn.dataset.copyTarget;
+    const input = document.getElementById(targetId);
+    if (!input) return;
+    try {
+      await navigator.clipboard.writeText(input.value);
+    } catch (e) {
+      input.select();
+      document.execCommand('copy');
+    }
+    const old = btn.textContent;
+    btn.textContent = 'コピー済✓';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = old;
+      btn.classList.remove('copied');
+    }, 1600);
+  });
+});
+
+// ===== キャラピッカー（クイック選択ボタン → 入力欄に反映） =====
+document.querySelectorAll('.char-quick').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const picker = btn.closest('.char-picker');
+    picker.querySelectorAll('.char-quick').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    picker.querySelector('.char-input').value = btn.dataset.char;
+  });
+});
+document.querySelectorAll('.char-input').forEach(input => {
+  input.addEventListener('input', () => {
+    input.closest('.char-picker').querySelectorAll('.char-quick').forEach(b => b.classList.remove('active'));
+  });
+});
+
+// ===== コピーボタン =====
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const promptBody = btn.parentElement;
+    let text = promptBody.querySelector('.prompt-text').innerText;
+
+    // キャラピッカーがある場合は【◯◯】を置換
+    const picker = promptBody.querySelector('.char-picker');
+    if (picker) {
+      const input = picker.querySelector('.char-input');
+      const charValue = input.value.trim();
+      if (!charValue) {
+        alert('キャラを選ぶか自分で入力してから「コピーする」を押してね🌷');
+        input.focus();
+        return;
+      }
+      text = text.replace(/【◯◯】/g, charValue);
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    const original = btn.textContent;
+    const picker2 = promptBody.querySelector('.char-picker');
+    if (picker2) {
+      const charV = picker2.querySelector('.char-input').value.trim();
+      btn.textContent = `コピー✓「${charV}」で置換済み`;
+    } else {
+      btn.textContent = 'コピーしました✓';
+    }
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove('copied');
+    }, 2400);
+
+    // 分割設定の合わせ方を案内（タブのdata-splitから推定）
+    const activeTab = document.querySelector('.prompt-tab.active');
+    const num = activeTab?.dataset.split;
+    const alertBox = document.getElementById('alertBox');
+    const alertMessage = document.getElementById('alertMessage');
+    if (alertBox && alertMessage) {
+      if (num) {
+        const sizeNote = num === '15' ? '・サイズ「絵文字用」' : '';
+        alertMessage.innerHTML = `📌 ChatGPTに貼り付けて画像生成したら、<strong>STEP1の「分割」を「${num}枚に分割」</strong>${sizeNote}に合わせてね🌷<br>※ChatGPTで枚数を変えた場合（例: 24枚に増やして）は、変えた枚数に合わせてね`;
+        alertBox.classList.add('show');
+        setTimeout(() => alertBox.classList.remove('show'), 10000);
+      } else {
+        // 申請用など分割不要なプロンプト→既存アラート消去
+        alertBox.classList.remove('show');
+      }
+    }
+  });
+});
+
+// ===== 設定トグル =====
+document.querySelectorAll('.toggle-group').forEach(group => {
+  const name = group.dataset.name;
+  // 復元: 保存値があれば該当ボタンをactiveに
+  const saved = state.settings[name];
+  if (saved) {
+    group.querySelectorAll('button').forEach(b => {
+      b.classList.toggle('active', b.dataset.value === saved);
+    });
+  }
+  group.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.settings[name] = btn.dataset.value;
+      if (name === 'bg') {
+        document.getElementById('modeInfo').textContent = modeDescriptions[btn.dataset.value];
+      }
+      if (name === 'size') {
+        document.getElementById('sizeInfo').innerHTML = sizeDescriptions[btn.dataset.value];
+      }
+      saveSettings();
+    });
+  });
+});
+
+// 起動時に保存済み設定の説明文を反映
+if (state.settings.bg && document.getElementById('modeInfo')) {
+  document.getElementById('modeInfo').textContent = modeDescriptions[state.settings.bg] || modeDescriptions.white;
+}
+if (state.settings.size && document.getElementById('sizeInfo')) {
+  document.getElementById('sizeInfo').innerHTML = sizeDescriptions[state.settings.size] || sizeDescriptions.sticker;
+}
+
+// ===== セット名入力 =====
+const setNameInput = document.getElementById('setNameInput');
+setNameInput.value = state.setName;
+setNameInput.addEventListener('input', () => {
+  state.setName = setNameInput.value.trim();
+  saveSettings();
+});
+
+// ===== 分割セレクト =====
+const splitSelect = document.getElementById('splitSelect');
+const splitInfo = document.getElementById('splitInfo');
+if (state.settings.split) splitSelect.value = state.settings.split;
+
+function updateSplitInfo() {
+  if (splitSelect.value === 'off') {
+    splitInfo.textContent = '✦ ChatGPTが「1枚にまとめて」返してきた時に使ってね🌷 1枚アップした時だけ動きます';
+  } else {
+    const cfg = SPLIT_CONFIG[splitSelect.value];
+    splitInfo.textContent = `✦ アップした1枚を ${cfg.label} に切り分けて、各キャラを個別のスタンプに仕上げます🌷`;
+  }
+}
+updateSplitInfo();
+
+splitSelect.addEventListener('change', () => {
+  state.settings.split = splitSelect.value;
+  updateSplitInfo();
+  saveSettings();
+});
+
+// ===== ステップインジケーター（スクロール追従＋クリック制御） =====
+const stepIds = ['step-prompt', 'step-settings', 'step-upload', 'step-process', 'step-result'];
+const stepPills = Array.from(document.querySelectorAll('.step-pill'));
+function updateActiveStep() {
+  let activeIdx = 0;
+  for (let i = 0; i < stepIds.length; i++) {
+    const el = document.getElementById(stepIds[i]);
+    if (!el) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.top < 120) activeIdx = i;
+  }
+  stepPills.forEach((p, i) => {
+    p.classList.toggle('active', i === activeIdx);
+    p.classList.toggle('done', i < activeIdx);
+  });
+}
+window.addEventListener('scroll', updateActiveStep, { passive: true });
+updateActiveStep();
+
+
+// ===== スマート分割（白い余白を自動検出して切る） =====
+function smartFindBoundaries(whitenessArr, totalLen, expectedGaps) {
+  // 95%以上が白い行/列の連続を「ギャップ」として検出
+  const WHITE_THRESHOLD = 0.95;
+  const MIN_GAP_LEN = Math.max(4, Math.floor(totalLen / 200)); // ノイズ除外
+  const EDGE_PADDING = 0.04; // 画像の外周4%は除外（外側の白い余白を無視）
+  const minPos = totalLen * EDGE_PADDING;
+  const maxPos = totalLen * (1 - EDGE_PADDING);
+
+  const gaps = [];
+  let inGap = false, gapStart = 0;
+  for (let i = 0; i < totalLen; i++) {
+    if (whitenessArr[i] >= WHITE_THRESHOLD && !inGap) {
+      inGap = true; gapStart = i;
+    } else if (whitenessArr[i] < WHITE_THRESHOLD && inGap) {
+      inGap = false;
+      const len = i - gapStart;
+      const mid = Math.floor((gapStart + i) / 2);
+      if (len >= MIN_GAP_LEN && mid > minPos && mid < maxPos) {
+        gaps.push({ start: gapStart, end: i, mid, len });
+      }
+    }
+  }
+
+  if (gaps.length < expectedGaps) return null;
+  // ギャップが期待数以上ある→長さでソートして上位を取る
+  gaps.sort((a, b) => b.len - a.len);
+  const selected = gaps.slice(0, expectedGaps).sort((a, b) => a.mid - b.mid);
+
+  const boundaries = [0];
+  selected.forEach(g => boundaries.push(g.mid));
+  boundaries.push(totalLen);
+  return boundaries;
+}
+
+// ===== 等分割モード（どんな画像でも均等にN等分） =====
+// 戻り値: { blobs: Blob[], cropInfos: [{x,y,w,h}], sourceBlob: Blob }
+function splitGridEqual(file, rows, cols) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        const cellAspect = (w / cols) / (h / rows);
+        const swappedAspect = (w / rows) / (h / cols);
+        if (Math.abs(swappedAspect - 1) < Math.abs(cellAspect - 1) - 0.15 && rows !== cols) {
+          [rows, cols] = [cols, rows];
+        }
+        const cellW = w / cols;
+        const cellH = h / rows;
+        const total = rows * cols;
+        const blobs = new Array(total);
+        const cropInfos = new Array(total);
+        let pending = total, failed = false;
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const idx = r * cols + c;
+            const x = Math.floor(c * cellW);
+            const y = Math.floor(r * cellH);
+            const cw = Math.floor((c + 1) * cellW) - x;
+            const ch = Math.floor((r + 1) * cellH) - y;
+            // クロップ座標を保存（元画像からの再クロップ用）
+            cropInfos[idx] = { x, y, w: cw, h: ch, imgW: w, imgH: h };
+            const cv = document.createElement('canvas');
+            cv.width = cw; cv.height = ch;
+            cv.getContext('2d').drawImage(img, x, y, cw, ch, 0, 0, cw, ch);
+            cv.toBlob(b => {
+              if (failed) return;
+              if (!b) { failed = true; URL.revokeObjectURL(url); reject(new Error('等分割失敗')); return; }
+              blobs[idx] = b;
+              pending--;
+              if (pending === 0) { URL.revokeObjectURL(url); resolve({ blobs, cropInfos, sourceBlob: file }); }
+            }, 'image/png');
+          }
+        }
+      } catch (e) {
+        URL.revokeObjectURL(url);
+        reject(new Error('等分割中にエラー: ' + (e.message || e)));
+      }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('画像読込失敗')); };
+    img.src = url;
+  });
+}
+
+// ===== 1枚を grid に分割（常に等分割モード） =====
+function splitGrid(file, rows, cols) {
+  return splitGridEqual(file, rows, cols);
+}
+
+// ===== スマート分割（旧・未使用・将来再利用用に残置） =====
+function splitGridSmart(file, rows, cols) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+
+        // ★画像のアスペクト比から行・列を自動入れ替え（縦長/横長対応）
+        // 例: 24枚で rows=6, cols=4 だが画像が横長なら rows=4, cols=6 に
+        const totalCells = rows * cols;
+        const cellAspect = (w / cols) / (h / rows); // 1に近いほど正方形
+        const swappedAspect = (w / rows) / (h / cols);
+        // セルが正方形に近い方を選ぶ（|aspect - 1| が小さい）
+        if (Math.abs(swappedAspect - 1) < Math.abs(cellAspect - 1) - 0.15 && rows !== cols) {
+          [rows, cols] = [cols, rows];
+        }
+
+        // pixel データ取得
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const data = ctx.getImageData(0, 0, w, h).data;
+
+        // 行・列の白さを計算
+        const rowWhite = new Array(h).fill(0);
+        const colWhite = new Array(w).fill(0);
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const i = (y * w + x) * 4;
+            if (data[i] > 240 && data[i+1] > 240 && data[i+2] > 240) {
+              rowWhite[y]++;
+              colWhite[x]++;
+            }
+          }
+        }
+        for (let y = 0; y < h; y++) rowWhite[y] /= w;
+        for (let x = 0; x < w; x++) colWhite[x] /= h;
+
+        // ★コンテンツ領域を検出（外周の白マージンを除外）
+        // 0.99 = ほぼ完全白（小さな文字エッジも拾う）
+        const FILL_THRESHOLD = 0.99;
+        let yStart = 0, yEnd = h, xStart = 0, xEnd = w;
+        for (let y = 0; y < h; y++) if (rowWhite[y] < FILL_THRESHOLD) { yStart = y; break; }
+        for (let y = h - 1; y >= 0; y--) if (rowWhite[y] < FILL_THRESHOLD) { yEnd = y + 1; break; }
+        for (let x = 0; x < w; x++) if (colWhite[x] < FILL_THRESHOLD) { xStart = x; break; }
+        for (let x = w - 1; x >= 0; x--) if (colWhite[x] < FILL_THRESHOLD) { xEnd = x + 1; break; }
+
+        // 安全マージン: 検出位置から少し外側に余裕を持たせる（文字エッジ保護）
+        const SAFETY_PX = 4;
+        xStart = Math.max(0, xStart - SAFETY_PX);
+        yStart = Math.max(0, yStart - SAFETY_PX);
+        xEnd = Math.min(w, xEnd + SAFETY_PX);
+        yEnd = Math.min(h, yEnd + SAFETY_PX);
+
+        const contentW = xEnd - xStart;
+        const contentH = yEnd - yStart;
+        if (contentW < 50 || contentH < 50) {
+          xStart = 0; yStart = 0; xEnd = w; yEnd = h;
+        }
+
+        // ★境界線の理想位置を計算→近くで「一番長い白い帯」を探してその真ん中で切る
+        // 検出範囲を狭めて等分割からのズレを最小限に
+        function refineBoundaries(whiteArr, start, end, n) {
+          if (n <= 1) return [start, end];
+          const range = end - start;
+          const spacing = range / n;
+          const SEARCH = spacing * 0.18; // 18%だけ動かせる（暴走防止）
+          const WHITE_TH = 0.95; // 95%以上白い行のみ「白帯」と認識
+          const MIN_BAND = Math.max(2, Math.floor(spacing * 0.02)); // 連続2px以上を白帯とみなす
+          const bounds = [start];
+          for (let i = 1; i < n; i++) {
+            const expected = Math.floor(start + i * spacing);
+            const sStart = Math.max(start, Math.floor(expected - SEARCH));
+            const sEnd = Math.min(end, Math.ceil(expected + SEARCH));
+
+            // 探索範囲内で「白い行の連続帯」を全部見つけて、一番長い帯の中央を採用
+            let bestStart = -1, bestEnd = -1, bestLen = 0;
+            let curStart = -1;
+            for (let p = sStart; p < sEnd; p++) {
+              if (whiteArr[p] >= WHITE_TH) {
+                if (curStart === -1) curStart = p;
+              } else {
+                if (curStart !== -1) {
+                  const len = p - curStart;
+                  if (len > bestLen) { bestLen = len; bestStart = curStart; bestEnd = p; }
+                  curStart = -1;
+                }
+              }
+            }
+            if (curStart !== -1) {
+              const len = sEnd - curStart;
+              if (len > bestLen) { bestLen = len; bestStart = curStart; bestEnd = sEnd; }
+            }
+
+            // 十分長い白帯がある時だけ採用→なければ等分割位置を使う
+            if (bestLen >= MIN_BAND) {
+              bounds.push(Math.floor((bestStart + bestEnd) / 2));
+            } else {
+              bounds.push(expected); // 等分割の理想位置にフォールバック
+            }
+          }
+          bounds.push(end);
+          return bounds;
+        }
+        const rowBounds = refineBoundaries(rowWhite, yStart, yEnd, rows);
+        const colBounds = refineBoundaries(colWhite, xStart, xEnd, cols);
+
+        // 切り出し
+        const total = rows * cols;
+        const blobs = new Array(total);
+        let pending = total, failed = false;
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const idx = r * cols + c;
+            const x1 = colBounds[c];
+            const y1 = rowBounds[r];
+            const x2 = colBounds[c+1];
+            const y2 = rowBounds[r+1];
+            const cw = x2 - x1;
+            const ch = y2 - y1;
+            const cellCanvas = document.createElement('canvas');
+            cellCanvas.width = cw;
+            cellCanvas.height = ch;
+            const cellCtx = cellCanvas.getContext('2d');
+            cellCtx.drawImage(img, x1, y1, cw, ch, 0, 0, cw, ch);
+            cellCanvas.toBlob(b => {
+              if (failed) return;
+              if (!b) {
+                failed = true;
+                URL.revokeObjectURL(url);
+                reject(new Error('分割画像の作成に失敗しました'));
+                return;
+              }
+              blobs[idx] = b;
+              pending--;
+              if (pending === 0) {
+                URL.revokeObjectURL(url);
+                resolve(blobs);
+              }
+            }, 'image/png');
+          }
+        }
+      } catch (e) {
+        URL.revokeObjectURL(url);
+        reject(new Error('分割中にエラー: ' + (e.message || e)));
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('画像を読み込めませんでした'));
+    };
+    img.src = url;
+  });
+}
+
+// ===== ファイル選択 =====
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const processCard = document.getElementById('processCard');
+const fileCount = document.getElementById('fileCount');
+
+dropzone.addEventListener('click', () => fileInput.click());
+['dragover','dragenter'].forEach(ev =>
+  dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('drag'); })
+);
+['dragleave','dragend','drop'].forEach(ev =>
+  dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove('drag'); })
+);
+dropzone.addEventListener('drop', e => {
+  const files = Array.from(e.dataTransfer.files).filter(f => {
+    const t = (f.type || '').toLowerCase();
+    const n = (f.name || '').toLowerCase();
+    return t.startsWith('image/') || n.endsWith('.heic') || n.endsWith('.heif');
+  });
+  if (files.length) handleFiles(files);
+});
+fileInput.addEventListener('change', e => {
+  const files = Array.from(e.target.files);
+  if (files.length) handleFiles(files);
+});
+
+// ===== サンプル画像で試す =====
+const SAMPLE_IMAGE_URL = 'https://manabi-esports.com/wp-content/uploads/2026/05/line-sticker-sample-grid.jpg?v=5';
+document.getElementById('trySampleBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('trySampleBtn');
+  const oldText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> サンプル画像読込中...';
+  try {
+    const res = await fetch(SAMPLE_IMAGE_URL);
+    if (!res.ok) throw new Error('読込失敗');
+    const blob = await res.blob();
+    const file = new File([blob], 'sample-grid.png', { type: 'image/png' });
+
+    // 16枚分割設定を自動でON
+    splitSelect.value = '16';
+    state.settings.split = '16';
+    updateSplitInfo();
+    saveSettings();
+
+    handleFiles([file]);
+    // 軽いお知らせ
+    setTimeout(() => {
+      alertMessage.innerHTML = '🌷 サンプル画像を読み込みました！「16枚に分割」も自動でセット済みです✨ STEP3「かんたん仕上げスタート」を押してね';
+      alertBox.classList.add('show');
+    }, 300);
+  } catch (e) {
+    alert('サンプル画像の読み込みに失敗しました🥺 ネット接続を確認してね');
+  }
+  btn.disabled = false;
+  btn.innerHTML = oldText;
+});
+
+function handleFiles(files) {
+  state.files = files;
+  state.results = [];
+  fileCount.textContent = files.length;
+  processCard.classList.remove('hidden');
+  document.getElementById('resultCard').classList.add('hidden');
+  document.getElementById('alertBox').classList.remove('show');
+  processCard.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// ===== HEIC判定＆変換 =====
+function isHeicFile(file) {
+  const name = (file.name || '').toLowerCase();
+  const type = (file.type || '').toLowerCase();
+  return name.endsWith('.heic') || name.endsWith('.heif') ||
+         type === 'image/heic' || type === 'image/heif' ||
+         type === '';  // iOS Safariはtype空のことがある
+}
+
+async function convertHeicIfNeeded(file) {
+  if (!isHeicFile(file)) return file;
+  // heic2anyが読み込まれていない場合は元のまま返す
+  if (typeof heic2any !== 'function') return file;
+  try {
+    const converted = await heic2any({
+      blob: file,
+      toType: 'image/png',
+      quality: 0.92,
+    });
+    // 配列で返ってくることがあるので最初を取る
+    const blob = Array.isArray(converted) ? converted[0] : converted;
+    return new File([blob], file.name.replace(/\.(heic|heif)$/i, '.png'), { type: 'image/png' });
+  } catch (e) {
+    console.warn('HEIC変換失敗、元ファイルで試行:', e);
+    return file;
+  }
+}
+
+// ===== AIモジュール動的読み込み =====
+async function loadAIModule() {
+  if (state.aiModule) return state.aiModule;
+  if (state.aiLoading) {
+    while (state.aiLoading) await new Promise(r => setTimeout(r, 100));
+    return state.aiModule;
+  }
+  state.aiLoading = true;
+  try {
+    const mod = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.8/+esm');
+    state.aiModule = mod;
+    return mod;
+  } catch (err) {
+    console.error('AIモジュール読み込み失敗:', err);
+    throw err;
+  } finally {
+    state.aiLoading = false;
+  }
+}
+
+// ===== 白を透過(改良版) =====
+function whiteToTransparent(blob, threshold = 240) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const px = data.data;
+        for (let i = 0; i < px.length; i += 4) {
+          const r = px[i], g = px[i+1], b = px[i+2];
+          if (r >= threshold && g >= threshold && b >= threshold) {
+            px[i+3] = 0;
+          } else {
+            const minC = Math.min(r, g, b);
+            if (minC >= threshold - 30) {
+              const fade = (minC - (threshold - 30)) / 30;
+              px[i+3] = Math.round(255 * (1 - fade));
+            }
+          }
+        }
+        ctx.putImageData(data, 0, 0);
+        canvas.toBlob(b => {
+          URL.revokeObjectURL(url);
+          if (b) resolve(b);
+          else reject(new Error('画像の作成に失敗しました'));
+        }, 'image/png');
+      } catch (e) {
+        URL.revokeObjectURL(url);
+        reject(new Error('画像の処理中にエラーが出ました: ' + (e.message || e)));
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('画像を読み込めませんでした'));
+    };
+    img.src = url;
+  });
+}
+
+// ===== グリッド分割プレビュー =====
+function showGridPreview(file, rows, cols) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('gridPreviewModal');
+    const canvas = document.getElementById('gridPreviewCanvas');
+    const ctx = canvas.getContext('2d');
+    const info = document.getElementById('gridPreviewInfo');
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const w = img.naturalWidth || img.width;
+      const h = img.naturalHeight || img.height;
+      // 行列を自動入れ替え（splitGridEqualと同じロジック）
+      const cellAspect = (w / cols) / (h / rows);
+      const swappedAspect = (w / rows) / (h / cols);
+      if (Math.abs(swappedAspect - 1) < Math.abs(cellAspect - 1) - 0.15 && rows !== cols) {
+        [rows, cols] = [cols, rows];
+      }
+      canvas.width = w; canvas.height = h;
+      ctx.drawImage(img, 0, 0);
+      // グリッド線を描画
+      ctx.strokeStyle = 'rgba(220, 50, 50, 0.8)';
+      ctx.lineWidth = Math.max(2, Math.floor(Math.min(w, h) / 200));
+      ctx.setLineDash([8, 4]);
+      for (let r = 1; r < rows; r++) {
+        const y = Math.floor(r * h / rows);
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+      for (let c = 1; c < cols; c++) {
+        const x = Math.floor(c * w / cols);
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      info.textContent = `${rows}行 × ${cols}列 = ${rows * cols}枚に分割`;
+      URL.revokeObjectURL(url);
+      modal.classList.add('show');
+      // ボタンのイベント
+      const okBtn = document.getElementById('gridPreviewOk');
+      const cancelBtn = document.getElementById('gridPreviewCancel');
+      function cleanup() {
+        okBtn.removeEventListener('click', onOk);
+        cancelBtn.removeEventListener('click', onCancel);
+        modal.classList.remove('show');
+      }
+      function onOk() { cleanup(); resolve(true); }
+      function onCancel() { cleanup(); resolve(false); }
+      okBtn.addEventListener('click', onOk);
+      cancelBtn.addEventListener('click', onCancel);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(true); }; // エラー時はスキップして処理続行
+    img.src = url;
+  });
+}
+
+// ===== 仕上げ処理 =====
+const processBtn = document.getElementById('processBtn');
+const progressWrap = document.getElementById('progressWrap');
+const progressText = document.getElementById('progressText');
+const progressFill = document.getElementById('progressFill');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const loadingText = document.getElementById('loadingText');
+const alertBox = document.getElementById('alertBox');
+const alertMessage = document.getElementById('alertMessage');
+
+processBtn.addEventListener('click', async () => {
+  // 分割モードの場合、先にグリッドプレビューを表示
+  const splitKeyCheck = state.settings.split;
+  if (splitKeyCheck !== 'off' && SPLIT_CONFIG[splitKeyCheck] && state.files.length === 1) {
+    const cfg = SPLIT_CONFIG[splitKeyCheck];
+    const confirmed = await showGridPreview(state.files[0], cfg.rows, cfg.cols);
+    if (!confirmed) return; // キャンセルされたら何もしない
+  }
+
+  processBtn.disabled = true;
+  progressWrap.classList.add('show');
+  alertBox.classList.remove('show');
+  state.results = [];
+
+  let useMode = state.settings.bg;
+  let removeBackground = null;
+
+  if (useMode === 'remove') {
+    loadingOverlay.classList.add('show');
+    loadingText.innerHTML = 'AIモデルを読み込み中...<br><span style="font-size:12px;color:var(--ink-soft)">初回のみ少し時間がかかります🍀</span>';
+    try {
+      const mod = await loadAIModule();
+      removeBackground = mod.removeBackground || mod.default;
+      if (!removeBackground) throw new Error('関数が見つかりません');
+    } catch (err) {
+      loadingOverlay.classList.remove('show');
+      useMode = 'white';
+      alertMessage.innerHTML = 'AI透過の準備でうまくいかなかったので、「白を透過」モードで仕上げますね。ChatGPT画像なら問題なくきれいに仕上がります🌷';
+      alertBox.classList.add('show');
+    }
+    loadingOverlay.classList.remove('show');
+  }
+
+  // 1枚アップ + 分割モードON なら、まずグリッド分割
+  let filesToProcess = state.files;
+  const splitKey = state.settings.split;
+  state.splitSource = null; // 元画像情報をリセット
+  state.splitCropInfos = null;
+  if (splitKey !== 'off' && SPLIT_CONFIG[splitKey] && state.files.length === 1) {
+    progressText.textContent = `画像を ${SPLIT_CONFIG[splitKey].label} に分割中...`;
+    progressFill.style.width = `5%`;
+    try {
+      const cfg = SPLIT_CONFIG[splitKey];
+      const splitResult = await splitGrid(state.files[0], cfg.rows, cfg.cols);
+      // 元画像とクロップ座標を保存（調整パネルでの再クロップ用）
+      state.splitSource = splitResult.sourceBlob;
+      state.splitCropInfos = splitResult.cropInfos;
+      filesToProcess = splitResult.blobs.map((b, i) =>
+        new File([b], `split-${String(i + 1).padStart(2, '0')}.png`, { type: 'image/png' })
+      );
+    } catch (err) {
+      console.error('分割エラー:', err);
+      alertMessage.innerHTML = '画像の分割でエラーが出ました🥺<br>「分割しない」に切り替えてもう一度試してみてください。';
+      alertBox.classList.add('show');
+      processBtn.disabled = false;
+      progressWrap.classList.remove('show');
+      return;
+    }
+  } else if (splitKey !== 'off' && state.files.length > 1) {
+    alertMessage.innerHTML = '分割モードは1枚アップ専用です🌷 複数枚の時は「分割しない」を選んでね。今回は分割せずに進めますね😊';
+    alertBox.classList.add('show');
+  }
+
+  const total = filesToProcess.length;
+  for (let i = 0; i < total; i++) {
+    let file = filesToProcess[i];
+    progressText.textContent = `${i + 1} / ${total} 枚目を仕上げ中...`;
+    progressFill.style.width = `${((i) / total) * 100}%`;
+
+    try {
+      // iPhoneのHEIC画像を自動変換
+      if (isHeicFile(file)) {
+        progressText.textContent = `${i + 1} / ${total} 枚目を変換中...`;
+        file = await convertHeicIfNeeded(file);
+      }
+
+      let blob = file;
+      if (useMode === 'remove' && removeBackground) {
+        try {
+          blob = await removeBackground(file);
+        } catch (err) {
+          console.error('AI透過エラー、白透過にフォールバック:', err);
+          blob = await whiteToTransparent(file);
+        }
+      } else if (useMode === 'white') {
+        blob = await whiteToTransparent(file);
+      }
+
+      const resized = await resizeImage(blob, state.settings.size);
+      state.results.push({
+        name: makeFilename(i),
+        blob: resized,
+      });
+    } catch (err) {
+      console.error('処理エラー:', err);
+      const msg = err && err.message ? err.message : '原因不明のエラー';
+      progressText.textContent = `${i + 1}枚目を飛ばしました(${msg})`;
+    }
+
+    progressFill.style.width = `${((i + 1) / total) * 100}%`;
+  }
+
+  progressText.textContent = `✿ ${state.results.length} 枚 完成しました！`;
+  processBtn.disabled = false;
+  if (state.results.length > 0) {
+    showResults();
+  } else {
+    alertMessage.innerHTML = 'うまく処理できませんでした🥺<br>「そのまま」モードに切り替えてもう一度試してみてください。それでもダメな場合は、画像を1枚ずつ試すか、別の画像で試してみてくださいね🌷';
+    alertBox.classList.add('show');
+  }
+});
+
+function resizeImage(blob, sizeType) {
+  return new Promise((resolve, reject) => {
+    const target = sizeType === 'main'  ? { w:240, h:240 }
+                 : sizeType === 'tab'   ? { w:96,  h:74  }
+                 : sizeType === 'emoji' ? { w:180, h:180 }
+                 : { w:370, h:320 };
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = target.w;
+        canvas.height = target.h;
+        const ctx = canvas.getContext('2d');
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        const ratio = Math.min(target.w / w, target.h / h);
+        const drawW = w * ratio;
+        const drawH = h * ratio;
+        const x = (target.w - drawW) / 2;
+        const y = (target.h - drawH) / 2;
+        ctx.drawImage(img, x, y, drawW, drawH);
+        canvas.toBlob(b => {
+          URL.revokeObjectURL(url);
+          if (b) resolve(b);
+          else reject(new Error('リサイズに失敗しました'));
+        }, 'image/png');
+      } catch (e) {
+        URL.revokeObjectURL(url);
+        reject(new Error('リサイズ中にエラー: ' + (e.message || e)));
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('画像を読み込めませんでした'));
+    };
+    img.src = url;
+  });
+}
+
+function makeFilename(index) {
+  return `${String(index + 1).padStart(2, '0')}.png`;
+}
+
+function showResults() {
+  const card = document.getElementById('resultCard');
+  const grid = document.getElementById('previewGrid');
+  const banner = document.getElementById('resultBanner');
+  const intro = document.getElementById('resultIntro');
+  const hint = document.getElementById('resultHint');
+  const zipBtn = document.getElementById('zipBtn');
+  const lineBtn = document.getElementById('lineBtn');
+  const selectionBar = document.getElementById('selectionBar');
+
+  const size = state.settings.size;
+  const isSingle = size === 'main' || size === 'tab';
+  const sizeLabel = size === 'main'  ? '表紙用 (240×240)'
+                   : size === 'tab'   ? 'タブ用 (96×74)'
+                   : size === 'emoji' ? '絵文字用 (180×180)'
+                   : 'スタンプ用 (370×320)';
+
+  // 初期: ぜんぶ選択
+  state.selected = new Set(state.results.map((_, i) => i));
+
+  if (isSingle) {
+    const useFor = size === 'main' ? '表紙' : size === 'tab' ? 'タブ' : '絵文字';
+    banner.style.display = 'block';
+    banner.innerHTML = `
+      <strong>🌷 ${sizeLabel} ができました！</strong>
+      気に入った1枚を選んで、画像の<strong>右下にあるピンクの「保存」ボタン👇</strong>を押すと、その1枚だけ保存できます✨<br>
+      ※ ${useFor}用は<strong>1枚だけでOK</strong>。ZIPは使わなくて大丈夫です🍀
+    `;
+    intro.textContent = `↓ お気に入りの1枚を選んで「保存」ボタンを押してね`;
+    hint.innerHTML = `
+      <strong>📲 LINEへの登録方法</strong>
+      保存した1枚を、LINE Creators Marketの「<strong>${useFor}画像</strong>」枠にアップロードすればOKです🌷 下の緑ボタンからLINE Creators Marketへ行けます✨
+    `;
+    zipBtn.style.display = 'none';
+    selectionBar.style.display = 'none';
+  } else {
+    banner.style.display = 'none';
+    intro.innerHTML = '✦ 失敗作はチェックを外せばZIPに含まれません🌷 下のプレビューで気に入ったものだけ選んで保存してね<br><span style="color:var(--pink-dp);font-size:13px">👆 画像をタップすると位置やサイズの微調整ができます。切れちゃった部分も復元できるよ✨</span>';
+    hint.innerHTML = `
+      <strong>📱 LINEへの登録方法</strong>
+      ZIPファイルが「ファイル」アプリに保存されます。中身を取り出して、LINE Creators Marketの「スタンプ画像」枠にまとめてアップしてください🍀 下の緑ボタンからLINE Creators Marketへ行けます✨
+    `;
+    zipBtn.style.display = '';
+    selectionBar.style.display = '';
+    document.getElementById('selTotal').textContent = state.results.length;
+    updateSelCount();
+  }
+
+  grid.innerHTML = '';
+  state.results.forEach((result, i) => {
+    const item = document.createElement('div');
+    item.className = 'preview-item';
+    item.dataset.index = i;
+    const url = URL.createObjectURL(result.blob);
+    const btnClass = isSingle ? 'download-btn featured' : 'download-btn';
+    const btnLabel = isSingle ? '👇 保存' : '保存';
+    const checkHtml = isSingle ? '' : `<button class="check-toggle checked" data-index="${i}" title="ZIPに含める/除外">✓</button>`;
+    item.innerHTML = `
+      <span class="num">${result.name}</span>
+      <img src="${url}" alt="">
+      ${checkHtml}
+      <button class="${btnClass}" data-index="${i}">${btnLabel}</button>
+    `;
+    grid.appendChild(item);
+  });
+
+  grid.querySelectorAll('.download-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const r = state.results[parseInt(btn.dataset.index)];
+      downloadBlob(r.blob, customFilename(r.name));
+    });
+  });
+
+  grid.querySelectorAll('.check-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.index);
+      if (state.selected.has(i)) {
+        state.selected.delete(i);
+        btn.classList.remove('checked');
+        btn.textContent = '';
+        btn.parentElement.classList.add('unchecked');
+      } else {
+        state.selected.add(i);
+        btn.classList.add('checked');
+        btn.textContent = '✓';
+        btn.parentElement.classList.remove('unchecked');
+      }
+      updateSelCount();
+    });
+  });
+
+  card.classList.remove('hidden');
+  card.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function updateSelCount() {
+  const el = document.getElementById('selCount');
+  if (el) el.textContent = state.selected.size;
+}
+
+function customFilename(baseName) {
+  const safe = (state.setName || '').replace(/[\\/:*?"<>|]/g, '').trim();
+  if (!safe) return baseName;
+  const ext = baseName.split('.').pop();
+  const num = baseName.replace(/\.[^.]+$/, '');
+  return `${safe}_${num}.${ext}`;
+}
+
+// 全選択・解除ボタン
+document.addEventListener('DOMContentLoaded', () => {
+  const selAllBtn = document.getElementById('selAllBtn');
+  const selNoneBtn = document.getElementById('selNoneBtn');
+  if (selAllBtn) selAllBtn.addEventListener('click', () => {
+    state.selected = new Set(state.results.map((_, i) => i));
+    document.querySelectorAll('.preview-item .check-toggle').forEach(btn => {
+      btn.classList.add('checked');
+      btn.textContent = '✓';
+      btn.parentElement.classList.remove('unchecked');
+    });
+    updateSelCount();
+  });
+  if (selNoneBtn) selNoneBtn.addEventListener('click', () => {
+    state.selected = new Set();
+    document.querySelectorAll('.preview-item .check-toggle').forEach(btn => {
+      btn.classList.remove('checked');
+      btn.textContent = '';
+      btn.parentElement.classList.add('unchecked');
+    });
+    updateSelCount();
+  });
+});
+
+function downloadBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+document.getElementById('zipBtn').addEventListener('click', async () => {
+  if (!state.results.length) return;
+  const selectedItems = state.results.filter((_, i) => state.selected.has(i));
+  if (!selectedItems.length) {
+    alertMessage.innerHTML = 'ZIPに入れる画像が選ばれていません🌷 各画像の右上のチェックを入れてくださいね';
+    alertBox.classList.add('show');
+    return;
+  }
+  const zipBtn = document.getElementById('zipBtn');
+  const oldText = zipBtn.innerHTML;
+  zipBtn.innerHTML = '<span class="spinner"></span> ZIP作成中...';
+  zipBtn.disabled = true;
+  // リネームモードに応じてファイル名を決定
+  const zip = new JSZip();
+  selectedItems.forEach((r, idx) => {
+    const newName = makeFilename(idx);
+    zip.file(newName, r.blob);
+  });
+  const content = await zip.generateAsync({ type: 'blob' });
+  const ts = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const safe = (state.setName || '').replace(/[\\/:*?"<>|]/g, '').trim();
+  const zipName = safe ? `${safe}_${ts}.zip` : `pochista-${ts}.zip`;
+  downloadBlob(content, zipName);
+  zipBtn.innerHTML = oldText;
+  zipBtn.disabled = false;
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  state.files = [];
+  state.results = [];
+  fileInput.value = '';
+  document.getElementById('processCard').classList.add('hidden');
+  document.getElementById('resultCard').classList.add('hidden');
+  progressWrap.classList.remove('show');
+  alertBox.classList.remove('show');
+  progressFill.style.width = '0%';
+  // プリセットガイドもリセット
+  document.getElementById('presetGuide').classList.remove('show');
+  state.presetMode = null;
+  state.presetStep = 0;
+  window.scrollTo({ top:0, behavior:'smooth' });
+});
+
+// ===== ① プリセットセット切替 =====
+state.presetMode = null; // 'stamp' | 'emoji' | null
+state.presetStep = 0;
+
+const PRESET_CONFIGS = {
+  stamp: {
+    title: '📦 スタンプ申請セット',
+    steps: [
+      { label: 'スタンプ用', size: 'sticker', desc: 'スタンプ画像を作っています（370×320）🌷 仕上がったらZIPで保存して、「次のサイズへ」を押してね' },
+      { label: '表紙用', size: 'main', desc: '表紙画像を作っています（240×240）🌷 お気に入りの1枚を「保存」して、「次のサイズへ」を押してね' },
+      { label: 'タブ用', size: 'tab', desc: 'タブ画像を作っています（96×74）🌷 1枚保存したら完了です✨' },
+    ],
+  },
+  emoji: {
+    title: '✨ 絵文字申請セット',
+    steps: [
+      { label: '絵文字用', size: 'emoji', desc: '絵文字を作っています（180×180）🌷 仕上がったらZIPで保存して、「次のサイズへ」を押してね' },
+      { label: '表紙用', size: 'main', desc: '表紙画像を作っています（240×240）🌷 お気に入りの1枚を「保存」して、「次のサイズへ」を押してね' },
+      { label: 'タブ用', size: 'tab', desc: 'タブ画像を作っています（96×74）🌷 1枚保存したら完了です✨' },
+    ],
+  },
+};
+
+function activatePreset(mode) {
+  state.presetMode = mode;
+  state.presetStep = 0;
+  updatePresetGuide();
+  applyPresetSize();
+}
+
+function updatePresetGuide() {
+  const guide = document.getElementById('presetGuide');
+  const config = PRESET_CONFIGS[state.presetMode];
+  if (!config) { guide.classList.remove('show'); return; }
+  guide.classList.add('show');
+  document.getElementById('presetGuideTitle').textContent = config.title;
+
+  const stepsEl = document.getElementById('presetSteps');
+  stepsEl.innerHTML = config.steps.map((s, i) => {
+    const cls = i < state.presetStep ? 'preset-step done' : i === state.presetStep ? 'preset-step active' : 'preset-step';
+    const icon = i < state.presetStep ? '✓' : `${i + 1}`;
+    return `<div class="${cls}"><span class="preset-step-num">${icon}</span>${s.label}</div>`;
+  }).join('');
+
+  const current = config.steps[state.presetStep];
+  document.getElementById('presetGuideMsg').textContent = current.desc;
+
+  const nextBtn = document.getElementById('presetNextBtn');
+  if (state.presetStep >= config.steps.length - 1) {
+    nextBtn.textContent = '✨ 完了！';
+    nextBtn.onclick = () => {
+      guide.classList.remove('show');
+      state.presetMode = null;
+      state.presetStep = 0;
+    };
+  } else {
+    nextBtn.textContent = '次のサイズへ →';
+    nextBtn.onclick = () => {
+      state.presetStep++;
+      updatePresetGuide();
+      applyPresetSize();
+    };
+  }
+}
+
+function applyPresetSize() {
+  const config = PRESET_CONFIGS[state.presetMode];
+  if (!config) return;
+  const targetSize = config.steps[state.presetStep].size;
+  state.settings.size = targetSize;
+  // サイズトグルのUIも合わせる
+  const sizeGroup = document.querySelector('.toggle-group[data-name="size"]');
+  if (sizeGroup) {
+    sizeGroup.querySelectorAll('button').forEach(b => {
+      b.classList.toggle('active', b.dataset.value === targetSize);
+    });
+  }
+  if (document.getElementById('sizeInfo')) {
+    document.getElementById('sizeInfo').innerHTML = sizeDescriptions[targetSize] || '';
+  }
+  saveSettings();
+}
+
+document.getElementById('presetStamp').addEventListener('click', () => activatePreset('stamp'));
+document.getElementById('presetEmoji').addEventListener('click', () => activatePreset('emoji'));
+document.getElementById('presetCloseBtn').addEventListener('click', () => {
+  document.getElementById('presetGuide').classList.remove('show');
+  state.presetMode = null;
+  state.presetStep = 0;
+});
+
+// ===== ② 一括リネーム =====
+state.renameMode = 'sequential'; // 'sequential' | 'prefix' | 'original'
+state.renamePrefix = '';
+
+document.querySelectorAll('.rename-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.rename-option').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    state.renameMode = opt.dataset.rename;
+    const prefixInput = document.getElementById('renamePrefixInput');
+    if (state.renameMode === 'prefix') {
+      prefixInput.classList.add('show');
+      prefixInput.focus();
+    } else {
+      prefixInput.classList.remove('show');
+    }
+  });
+});
+
+document.getElementById('renamePrefixInput').addEventListener('input', (e) => {
+  state.renamePrefix = e.target.value.replace(/[\\/:*?"<>|]/g, '').trim();
+});
+
+// makeFilename を上書き: リネームモードに対応
+const _originalMakeFilename = makeFilename;
+makeFilename = function(index) {
+  if (state.renameMode === 'prefix' && state.renamePrefix) {
+    return `${state.renamePrefix}_${String(index + 1).padStart(2, '0')}.png`;
+  }
+  if (state.renameMode === 'original' && state.files[index]) {
+    const origName = state.files[index].name.replace(/\.[^.]+$/, '');
+    return `${origName}.png`;
+  }
+  return `${String(index + 1).padStart(2, '0')}.png`;
+};
+
+// ===== ③ 透過チェッカー =====
+state.checkerOn = true; // デフォルトON（既存の市松模様背景をそのまま使う）
+
+const checkerToggle = document.getElementById('checkerToggle');
+checkerToggle.classList.add('active');
+
+checkerToggle.addEventListener('click', () => {
+  state.checkerOn = !state.checkerOn;
+  checkerToggle.classList.toggle('active', state.checkerOn);
+  checkerToggle.textContent = state.checkerOn ? '🔲 透過チェック表示 ON' : '🔲 透過チェック表示 OFF';
+  document.querySelectorAll('.preview-item').forEach(item => {
+    item.classList.toggle('checker-off', !state.checkerOn);
+  });
+});
+
+// showResults を拡張: 透過チェック状態を反映
+const _originalShowResults = showResults;
+const _patchedShowResults = function() {
+  _originalShowResults();
+  // 透過チェッカーの状態を新しいプレビューアイテムに適用
+  if (!state.checkerOn) {
+    document.querySelectorAll('.preview-item').forEach(item => {
+      item.classList.add('checker-off');
+    });
+  }
+  // ④ 微調整用のクリックイベントを追加
+  document.querySelectorAll('.preview-item img').forEach(img => {
+    img.style.cursor = 'pointer';
+    img.addEventListener('click', (e) => {
+      const item = e.target.closest('.preview-item');
+      const idx = parseInt(item.dataset.index);
+      if (!isNaN(idx)) openAdjustPanel(idx);
+    });
+  });
+};
+// showResults を差し替え
+showResults = _patchedShowResults;
+
+// ===== ④ 微調整パネル =====
+state.adjustIndex = -1;
+state.adjustOrigBlob = null;
+state.adjustParams = { dx: 0, dy: 0, scale: 100, bright: 0, sat: 0 };
+
+function openAdjustPanel(index) {
+  state.adjustIndex = index;
+  const result = state.results[index];
+  if (!result) return;
+
+  // 分割元画像がある場合は元画像から再クロップできるモード
+  if (state.splitSource && state.splitCropInfos && state.splitCropInfos[index]) {
+    state.adjustOrigBlob = state.splitSource;  // 分割前のフル画像
+    state.adjustCropInfo = state.splitCropInfos[index]; // {x, y, w, h, imgW, imgH}
+  } else {
+    state.adjustOrigBlob = result.blob;
+    state.adjustCropInfo = null; // 通常モード
+  }
+  state.adjustParams = { dx: 0, dy: 0, scale: 100, bright: 0, sat: 0 };
+
+  // スライダーリセット
+  document.getElementById('adjustScale').value = 100;
+  document.getElementById('adjustScaleVal').textContent = '100%';
+  document.getElementById('adjustBright').value = 0;
+  document.getElementById('adjustBrightVal').textContent = '0';
+  document.getElementById('adjustSat').value = 0;
+  document.getElementById('adjustSatVal').textContent = '0';
+
+  renderAdjustPreview();
+  document.getElementById('adjustOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAdjustPanel() {
+  document.getElementById('adjustOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+  state.adjustIndex = -1;
+}
+
+function renderAdjustPreview() {
+  const canvas = document.getElementById('adjustCanvas');
+  const ctx = canvas.getContext('2d');
+  const blob = state.adjustOrigBlob;
+  if (!blob) return;
+
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    const p = state.adjustParams;
+    const cropInfo = state.adjustCropInfo;
+
+    if (cropInfo) {
+      // === 再クロップモード: 元画像からセル範囲を描画 ===
+      canvas.width = cropInfo.w;
+      canvas.height = cropInfo.h;
+      ctx.clearRect(0, 0, cropInfo.w, cropInfo.h);
+
+      const factor = p.scale / 100;
+      // 表示する元画像上の範囲（scale で拡縮）
+      const sw = cropInfo.w / factor;
+      const sh = cropInfo.h / factor;
+      // 中心基準でスケール + ドラッグオフセット
+      const sx = cropInfo.x + (cropInfo.w - sw) / 2 - p.dx / factor;
+      const sy = cropInfo.y + (cropInfo.h - sh) / 2 - p.dy / factor;
+
+      ctx.filter = `brightness(${100 + p.bright}%) saturate(${100 + p.sat}%)`;
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cropInfo.w, cropInfo.h);
+      ctx.filter = 'none';
+    } else {
+      // === 通常モード: 既存の挙動 ===
+      const w = img.naturalWidth || img.width;
+      const h = img.naturalHeight || img.height;
+      canvas.width = w;
+      canvas.height = h;
+      ctx.clearRect(0, 0, w, h);
+
+      const scale = p.scale / 100;
+      const drawW = w * scale;
+      const drawH = h * scale;
+      const x = (w - drawW) / 2 + p.dx;
+      const y = (h - drawH) / 2 + p.dy;
+
+      ctx.filter = `brightness(${100 + p.bright}%) saturate(${100 + p.sat}%)`;
+      ctx.drawImage(img, x, y, drawW, drawH);
+      ctx.filter = 'none';
+    }
+
+    URL.revokeObjectURL(url);
+  };
+  img.src = url;
+}
+
+// 位置調整ボタン（ステップ 8px）
+document.querySelectorAll('.adjust-arrows button[data-dir]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const dir = btn.dataset.dir;
+    const step = 8;
+    if (dir === 'up') state.adjustParams.dy -= step;
+    if (dir === 'down') state.adjustParams.dy += step;
+    if (dir === 'left') state.adjustParams.dx -= step;
+    if (dir === 'right') state.adjustParams.dx += step;
+    renderAdjustPreview();
+  });
+});
+
+// ドラッグで位置調整（タッチ＆マウス対応）
+(function() {
+  const canvas = document.getElementById('adjustCanvas');
+  let dragging = false;
+  let lastX = 0, lastY = 0;
+
+  function getPos(e) {
+    if (e.touches && e.touches.length > 0) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    return { x: e.clientX, y: e.clientY };
+  }
+
+  function getScale() {
+    // canvas の表示サイズと実際のサイズの比率を取得
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0) return 1;
+    return canvas.width / rect.width;
+  }
+
+  function onStart(e) {
+    dragging = true;
+    const pos = getPos(e);
+    lastX = pos.x;
+    lastY = pos.y;
+    canvas.classList.add('dragging');
+    e.preventDefault();
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    const pos = getPos(e);
+    const scale = getScale();
+    state.adjustParams.dx += (pos.x - lastX) * scale;
+    state.adjustParams.dy += (pos.y - lastY) * scale;
+    lastX = pos.x;
+    lastY = pos.y;
+    renderAdjustPreview();
+    e.preventDefault();
+  }
+
+  function onEnd() {
+    dragging = false;
+    canvas.classList.remove('dragging');
+  }
+
+  canvas.addEventListener('mousedown', onStart);
+  canvas.addEventListener('mousemove', onMove);
+  canvas.addEventListener('mouseup', onEnd);
+  canvas.addEventListener('mouseleave', onEnd);
+  canvas.addEventListener('touchstart', onStart, { passive: false });
+  canvas.addEventListener('touchmove', onMove, { passive: false });
+  canvas.addEventListener('touchend', onEnd);
+  canvas.addEventListener('touchcancel', onEnd);
+})();
+
+document.getElementById('adjustPosReset').addEventListener('click', () => {
+  state.adjustParams.dx = 0;
+  state.adjustParams.dy = 0;
+  renderAdjustPreview();
+});
+
+// サイズスライダー
+document.getElementById('adjustScale').addEventListener('input', (e) => {
+  state.adjustParams.scale = parseInt(e.target.value);
+  document.getElementById('adjustScaleVal').textContent = `${e.target.value}%`;
+  renderAdjustPreview();
+});
+document.getElementById('adjustSizeReset').addEventListener('click', () => {
+  state.adjustParams.scale = 100;
+  document.getElementById('adjustScale').value = 100;
+  document.getElementById('adjustScaleVal').textContent = '100%';
+  renderAdjustPreview();
+});
+
+// 明るさ・彩度スライダー
+document.getElementById('adjustBright').addEventListener('input', (e) => {
+  state.adjustParams.bright = parseInt(e.target.value);
+  document.getElementById('adjustBrightVal').textContent = e.target.value;
+  renderAdjustPreview();
+});
+document.getElementById('adjustSat').addEventListener('input', (e) => {
+  state.adjustParams.sat = parseInt(e.target.value);
+  document.getElementById('adjustSatVal').textContent = e.target.value;
+  renderAdjustPreview();
+});
+document.getElementById('adjustColorReset').addEventListener('click', () => {
+  state.adjustParams.bright = 0;
+  state.adjustParams.sat = 0;
+  document.getElementById('adjustBright').value = 0;
+  document.getElementById('adjustBrightVal').textContent = '0';
+  document.getElementById('adjustSat').value = 0;
+  document.getElementById('adjustSatVal').textContent = '0';
+  renderAdjustPreview();
+});
+
+// アコーディオン開閉
+document.querySelectorAll('.adjust-section-head').forEach(head => {
+  head.addEventListener('click', () => {
+    head.closest('.adjust-section').classList.toggle('open');
+  });
+});
+
+// 適用ボタン: Canvas内容をBlobに変換して結果を差し替え
+document.getElementById('adjustApplyBtn').addEventListener('click', () => {
+  const canvas = document.getElementById('adjustCanvas');
+  const isRecrop = state.adjustCropInfo != null;
+  const applyBtn = document.getElementById('adjustApplyBtn');
+  const origText = applyBtn.textContent;
+
+  canvas.toBlob(async (rawBlob) => {
+    if (!rawBlob || state.adjustIndex < 0 || !state.results[state.adjustIndex]) {
+      closeAdjustPanel();
+      return;
+    }
+
+    let finalBlob = rawBlob;
+
+    if (isRecrop) {
+      // 再クロップ時: 背景透過 → リサイズ を再適用
+      applyBtn.textContent = '処理中...';
+      applyBtn.disabled = true;
+      try {
+        const useMode = state.settings.bg;
+        if (useMode === 'white') {
+          finalBlob = await whiteToTransparent(finalBlob);
+        } else if (useMode === 'remove') {
+          try {
+            const mod = await loadAIModule();
+            const removeBg = mod.removeBackground || mod.default;
+            finalBlob = await removeBg(finalBlob);
+          } catch {
+            finalBlob = await whiteToTransparent(finalBlob);
+          }
+        }
+        finalBlob = await resizeImage(finalBlob, state.settings.size);
+      } catch (err) {
+        console.error('再クロップ適用エラー:', err);
+      }
+      applyBtn.textContent = origText;
+      applyBtn.disabled = false;
+    }
+
+    state.results[state.adjustIndex].blob = finalBlob;
+    // プレビュー画像も更新
+    const item = document.querySelector(`.preview-item[data-index="${state.adjustIndex}"]`);
+    if (item) {
+      const img = item.querySelector('img');
+      if (img) img.src = URL.createObjectURL(finalBlob);
+    }
+    closeAdjustPanel();
+  }, 'image/png');
+});
+
+// キャンセル・閉じるボタン
+document.getElementById('adjustCancelBtn').addEventListener('click', closeAdjustPanel);
+document.getElementById('adjustCloseBtn').addEventListener('click', closeAdjustPanel);
+document.getElementById('adjustOverlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('adjustOverlay')) closeAdjustPanel();
+});
+</script>
+
+</body>
+</html>
